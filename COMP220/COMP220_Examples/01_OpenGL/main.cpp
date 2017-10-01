@@ -61,6 +61,25 @@ int main(int argc, char* args[])
 			return 1;
 		}
 
+		// Create Vertex Array
+		GLuint VertexArrayID;
+		glGenVertexArrays(1, &VertexArrayID);
+		glBindVertexArray(VertexArrayID);
+
+		// Setting Triangle Coordinates
+		static const GLfloat g_vertex_buffer_data[] = {
+			-1.0f, -1.0f, 0.0f,
+			1.0f, -1.0f, 0.0f,
+			0.0f, 1.0f, 0.0f,
+		};
+
+		GLuint vertexbuffer;
+
+		glGenBuffers(1, &vertexbuffer);
+
+		glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
+
+		glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), g_vertex_buffer_data, GL_STATIC_DRAW);
 
 	//Event loop, we will loop until running is set to false, usually if escape has been pressed or window is closed
 	bool running = true;
@@ -96,9 +115,27 @@ int main(int argc, char* args[])
 		glClearColor(0.2, 0.5, 0.9, 1.0);
 		glClear(GL_COLOR_BUFFER_BIT);
 
+		glEnableVertexAttribArray(0);
+		glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
+		glVertexAttribPointer(
+			0,
+			3,
+			GL_FLOAT,
+			GL_FALSE,
+			0,
+			(void*)0
+		);
+
+		glDrawArrays(GL_TRIANGLES, 0, 3);
+		glDisableVertexAttribArray(0);
+
 		SDL_GL_SwapWindow(window);
 	}
 
+	glDeleteBuffers(1, &vertexbuffer);
+	//Delete Vertex Array
+	glDeleteVertexArrays(1, &VertexArrayID);
+	//Delete GL Context
 	SDL_GL_DeleteContext(gl_Context);
 	//Destroy the window and quit SDL2, NB we should do this after all cleanup in this order!!!
 	//https://wiki.libsdl.org/SDL_DestroyWindow
