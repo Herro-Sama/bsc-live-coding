@@ -10,32 +10,56 @@ int main(int argc, char* args[])
 	{
 		//Display an error message box
 		//https://wiki.libsdl.org/SDL_ShowSimpleMessageBox
-		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, SDL_GetError(), "SDL_Init failed", NULL);
+		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "SDL_Init failed", SDL_GetError(),  NULL);
 		return 1;
 	}
 
 	//Create a window, note we have to free the pointer returned using the DestroyWindow Function
 	//https://wiki.libsdl.org/SDL_CreateWindow
-	SDL_Window* window = SDL_CreateWindow("SDL2 Window", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 800, 600, SDL_WINDOW_SHOWN );
+	SDL_Window* window = SDL_CreateWindow("SDL2 Window", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 800, 600, SDL_WINDOW_SHOWN|SDL_WINDOW_OPENGL);
 	//Checks to see if the window has been created, the pointer will have a value of some kind
 	if (window == nullptr)
 	{
 		//Show error
-		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, SDL_GetError(), "SDL_CreateWindow failed", NULL);
+		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "SDL_CreateWindow failed", SDL_GetError(),  NULL);
 		//Close the SDL Library
 		//https://wiki.libsdl.org/SDL_Quit
 		SDL_Quit();
 		return 1;
 	}
 
-	//Init GLEW
-	glewExperimental = GL_TRUE;
-	GLenum Err = glewInit();
-	if (Err != GLEW_OK)
-	{
-		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,"GLEW got stuck on Init", (char*)glewGetErrorString(Err), NULL);
-	}
 
+	//Set OpenGLAttributes
+
+		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
+
+		SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+
+
+		SDL_GLContext gl_Context = SDL_GL_CreateContext(window);
+		if (gl_Context == nullptr)
+		{
+			SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "SDL_Create Context failed", SDL_GetError(), NULL);
+
+			SDL_DestroyWindow(window);
+			SDL_Quit();
+
+			return 1;
+		}
+
+		//Init GLEW
+		glewExperimental = GL_TRUE;
+		GLenum Err = glewInit();
+		if (Err != GLEW_OK)
+		{
+			SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "GLEW got stuck on Init", (char*)glewGetErrorString(Err), NULL);
+
+			SDL_DestroyWindow(window);
+			SDL_Quit();
+
+			return 1;
+		}
 
 
 	//Event loop, we will loop until running is set to false, usually if escape has been pressed or window is closed
@@ -69,9 +93,13 @@ int main(int argc, char* args[])
 		}
 
 		//Update game and draw with OpenGL
+		glClearColor(0.2, 0.5, 0.9, 1.0);
+		glClear(GL_COLOR_BUFFER_BIT);
+
+		SDL_GL_SwapWindow(window);
 	}
 
-
+	SDL_GL_DeleteContext(gl_Context);
 	//Destroy the window and quit SDL2, NB we should do this after all cleanup in this order!!!
 	//https://wiki.libsdl.org/SDL_DestroyWindow
 	SDL_DestroyWindow(window);
