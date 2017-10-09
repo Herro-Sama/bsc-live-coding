@@ -153,9 +153,19 @@ int main(int argc, char* args[])
 	// An array of 3 vectors which represents 3 vertices
 	static const GLfloat g_vertex_buffer_data[] = {
 		-1.0f, -1.0f, 0.0f,
+		0.0f, 0.0f, 0.0f,
 		1.0f, -1.0f, 0.0f,
-		0.0f,  1.0f, 0.0f,
+		-1.0f, -1.0f, 0.0f,
+		0.0f, 0.0f, 0.0f,
+		-1.0f, 1.0f, 0.0f,
+		-1.0f, 1.0f, 0.0f,
+		-1.0f, 1.0f, 0.0f,
+		0.0f, 0.0f, 0.0f,
+		1.0f, 1.0f, 0.0f,
+		1.0f, -1.0f, 0.0f,
+		0.0f, 0.0f, 0.0f,
 	};
+
 
 	// This will identify our vertex buffer
 	GLuint vertexbuffer;
@@ -168,6 +178,12 @@ int main(int argc, char* args[])
 
 	GLuint programID = LoadShaders("vert.glsl", "frag.glsl");
 
+	if (programID < 0)
+	{
+		
+	}
+
+	GLuint timelocation=glGetUniformLocation(programID, "time");
 	//Event loop, we will loop until running is set to false, usually if escape has been pressed or window is closed
 	bool running = true;
 	//SDL Event structure, this will be checked in the while loop
@@ -198,10 +214,14 @@ int main(int argc, char* args[])
 			}
 		}
 
+		float currentTicks = SDL_GetTicks();
+
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 
 		glUseProgram(programID);
+
+		glUniform1f(timelocation, (float)(currentTicks / 1000.0f));
 
 		// 1rst attribute buffer : vertices
 		glEnableVertexAttribArray(0);
@@ -215,7 +235,7 @@ int main(int argc, char* args[])
 			(void*)0            // array buffer offset
 		);
 		// Draw the triangle !
-		glDrawArrays(GL_TRIANGLES, 0, 3); // Starting from vertex 0; 3 vertices total -> 1 triangle
+		glDrawArrays(GL_TRIANGLES, 0, 12); // Starting from vertex 0; 3 vertices total -> 1 triangle
 		glDisableVertexAttribArray(0);
 
 		SDL_GL_SwapWindow(window);

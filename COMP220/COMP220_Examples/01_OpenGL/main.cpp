@@ -132,6 +132,7 @@ int main(int argc, char* args[])
 		SDL_GL_SwapWindow(window);
 	}
 
+	//Delete Vertex Buffer
 	glDeleteBuffers(1, &vertexbuffer);
 	//Delete Vertex Array
 	glDeleteVertexArrays(1, &VertexArrayID);
