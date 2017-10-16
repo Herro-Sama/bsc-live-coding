@@ -1,18 +1,20 @@
 #version 330 core
 
 layout(location=0) in vec3 vertexPosition;
+layout(location=1) in vec4 vertexColour;
 
-uniform float time;
+uniform float time=0.0f;
 
-out vec3 vertexLocation;
+uniform mat4 modelMatrix =mat4(1.0f);
+uniform mat4 viewMatrix=mat4(1.0f);
+uniform mat4 projectionMatrix=mat4(1.0f);
+
+out vec4 vertexColourOut;
 
 void main()
 {
-	vec3 newVertexPosition = vertexPosition;
-	newVertexPosition.xyz += sin(time);
-	vertexLocation = newVertexPosition;
 
-	gl_Position=vec4(newVertexPosition,1.0);
-	//gl_Position.xyz=vertexPostition;
-	//gl_Position.w=1.0;
+mat4
+
+	gl_Position=modelMatrix*vec4(newVertexPosition,1.0);
 }

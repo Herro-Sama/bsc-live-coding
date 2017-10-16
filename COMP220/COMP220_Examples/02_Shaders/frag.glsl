@@ -1,12 +1,12 @@
 #version 330 core
 
-out vec4 colour;
+in vec4 vertexColourOut;
 
-in vec3 vertexLocation;
+out vec4 Colour;
 
-uniform float time;
+uniform vec4 fragColour=vec4(1.0, 1.0, 1.0, 1.0);
 
 void main()
 {
-	colour=vec4(vertexLocation.x,vertexLocation.y,vertexLocation.z,1.0);
+	colour=vertexColourOut;
 }
