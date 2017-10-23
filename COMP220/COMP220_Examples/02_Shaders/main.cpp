@@ -151,7 +151,7 @@ int main(int argc, char* args[])
 	glBindVertexArray(VertexArrayID);
 
 
-
+	/*
 	// An array of 3 vectors which represents 3 vertices
 	static const GLfloat g_vertex_buffer_data[] = {
 		//Front Panel
@@ -205,6 +205,76 @@ int main(int argc, char* args[])
 
 	};
 
+	*/
+	Vertex triangleVertices[]=
+	{	
+		//Back Panel
+		{ -0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 1.0f },
+		{ 0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 1.0f },
+		{ -0.5f, -0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 1.0f },
+		{ 0.5f, -0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 1.0f },
+		{ 0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 1.0f },
+		{ -0.5f, -0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 1.0f },
+
+
+		//Right Hand Panel
+		{ 0.5f, 0.5f, 0.5f, 0.5f, 0.0f, 0.5f, 1.0f },
+		{ 0.5f, -0.5f, -0.5f, 0.5f, 0.0f, 0.5f, 1.0f },
+		{ 0.5f, -0.5f, 0.5f, 0.5f, 0.0f, 0.5f, 1.0f },
+		{ 0.5f, -0.5f, -0.5f, 0.5f, 0.0f, 0.5f, 1.0f },
+		{ 0.5f, 0.5f, -0.5f, 0.5f, 0.0f, 0.5f, 1.0f },
+		{ 0.5f, -0.5f, 0.5f, 0.5f, 0.0f, 0.5f, 1.0f },
+		
+		//Bottom Panel
+		{ -0.5f, -0.5f, 0.5f, 0.0f, 0.5f, 0.5f, 1.0f },
+		{ 0.5f, -0.5f, 0.5f, 0.0f, 0.5f, 0.5f, 1.0f },
+		{ -0.5f, -0.5f, -0.5f, 0.0f, 0.5f, 0.5f, 1.0f },
+		{ 0.5f, -0.5f, -0.5f, 0.0f, 0.5f, 0.5f, 1.0f },
+		{ 0.5f, -0.5f, 0.5f, 0.0f, 0.5f, 0.5f, 1.0f },
+		{ -0.5f, -0.5f, -0.5f, 0.0f, 0.5f, 0.5f, 1.0f },
+
+		//Left Hand Panel
+		{ -0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.0f, 1.0f },
+		{ -0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.0f, 1.0f },
+		{ -0.5f, -0.5f, 0.5f, 0.5f, 0.5f, 0.0f, 1.0f },
+		{ -0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.0f, 1.0f },
+		{ -0.5f, 0.5f, -0.5f, 0.5f, 0.5f, 0.0f, 1.0f },
+		{ -0.5f, -0.5f, 0.5f, 0.5f, 0.5f, 0.0f, 1.0f },
+		
+		//Top Panel
+		{-0.5f, 0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 1.0f},
+		{ 0.5f, 0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 1.0f },
+		{ -0.5f, 0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 1.0f },
+		{ 0.5f, 0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 1.0f },
+		{ 0.5f, 0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 1.0f },
+		{ -0.5f, 0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 1.0f },
+
+		//Front Panel
+		{ -0.5f, 0.5f, 0.5f,1.0f,0.0f,0.0f,1.0f },
+		{ 0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 1.0f },
+		{ -0.5f, -0.5f, 0.5f, 1.0f, 0.0f, 0.0f, 1.0f },
+		{ 0.5f, -0.5f, 0.5f, 1.0f, 0.0f, 0.0f, 1.0f },
+		{ 0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 0.0f, 1.0f },
+		{ -0.5f, -0.5f, 0.5f, 1.0f, 0.0f, 0.0f, 1.0f }
+	
+	};
+
+	unsigned int triangleIndecies[]=
+	{
+		0,1,2,
+		3,4,5,
+		6,7,8,
+		9,10,11,
+		12,13,14,
+		15,16,17,
+		18,19,20,
+		21,22,23,
+		24,25,26,
+		27,28,29,
+		30,31,32,
+		33,34,35
+
+	};
 
 	// This will identify our vertex buffer
 	GLuint vertexbuffer;
@@ -213,14 +283,18 @@ int main(int argc, char* args[])
 	// The following commands will talk about our 'vertexbuffer' buffer
 	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
 
-	glBufferData(GL_ARRAY_BUFFER, 4 * sizeof(Vertex), triangleVertices, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, 36 * sizeof(Vertex), triangleVertices, GL_STATIC_DRAW);
 
 
 	GLuint elementbuffer;
+	glGenBuffers(1, &elementbuffer);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, 36 * sizeof(unsigned int), triangleIndecies, GL_STATIC_DRAW);
+
 
 	vec3 trianglePosition = vec3(0.0f, 0.0f, 0.0f);
 	mat4 translationMatrix = translate(trianglePosition);
-	vec3 triangleRotation = vec3(0.0f, 0.0f, 0.0f);
+	vec3 triangleRotation = vec3(0.5f, 0.5f, 0.0f);
 
 	mat4 rotationXMatrix = rotate(triangleRotation.x, vec3(1.0f, 0.0f, 0.0f));
 	mat4 rotationYMatrix = rotate(triangleRotation.y, vec3(0.0f, 1.0f, 0.0f));
@@ -229,8 +303,18 @@ int main(int argc, char* args[])
 
 	mat4 modelMatrix = translationMatrix*rotationMatrix;
 
+	vec3 cameraPosition = vec3(0.0f, 0.0f, 0.0f);
+	vec3 cameraTarget = vec3(0.0f, 0.0f, 0.0f);
+	vec3 cameraUP = vec3(0.0f, 0.0f, 0.0f);
+
+	mat4 viewMatrix = lookAt(cameraPosition, cameraTarget, cameraUP);
+
+	mat4 projectionMatrix = perspective(radians(90.0f), float(800 / 600), 0.1f, 100.0f);
 	// Give our vertices to OpenGL.
-	glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), g_vertex_buffer_data, GL_STATIC_DRAW);
+	//glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), g_vertex_buffer_data, GL_STATIC_DRAW);
+
+	glBufferData(GL_ARRAY_BUFFER, sizeof(triangleVertices), triangleVertices, GL_STATIC_DRAW);
+
 
 	GLuint programID = LoadShaders("vert.glsl", "frag.glsl");
 
@@ -240,6 +324,12 @@ int main(int argc, char* args[])
 	}
 
 	GLuint timelocation=glGetUniformLocation(programID, "time");
+
+	GLint modelMatrixLocation = glGetUniformLocation(programID, "modelMatrix");
+	GLint viewMatrixLocation = glGetUniformLocation(programID, "viewMatrix");
+	GLint projectionMatrixLocation = glGetUniformLocation(programID, "projectionMatrix");
+
+
 	//Event loop, we will loop until running is set to false, usually if escape has been pressed or window is closed
 	bool running = true;
 	//SDL Event structure, this will be checked in the while loop
@@ -277,14 +367,15 @@ int main(int argc, char* args[])
 
 		glUseProgram(programID);
 
+		glUniformMatrix4fv(modelMatrixLocation, 1, GL_FALSE, value_ptr(modelMatrix));
 		glUniform1f(timelocation, (float)(currentTicks / 1000.0f));
 
-		// 1rst attribute buffer : vertices
-		glEnableVertexAttribArray(0);
+
 		glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
 
-	
+		// 1rst attribute buffer : vertices
+		glEnableVertexAttribArray(0);
 
 		glVertexAttribPointer(
 			0,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
@@ -294,9 +385,17 @@ int main(int argc, char* args[])
 			sizeof(Vertex),                  // stride
 			(void*)0            // array buffer offset
 		);
+
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(1, 4, GL_FLOAT,GL_FALSE, sizeof(Vertex), (void*)(3 * sizeof(float)));
+
+
 		// Draw the triangle !
 		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, (void*)0); // Starting from vertex 0; 3 vertices total -> 1 triangle
+		
 		glDisableVertexAttribArray(0);
+		glDisableVertexAttribArray(1);
+
 
 		SDL_GL_SwapWindow(window);
 	}

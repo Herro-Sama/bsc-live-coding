@@ -3,7 +3,7 @@
 layout(location=0) in vec3 vertexPosition;
 layout(location=1) in vec4 vertexColour;
 
-uniform float time=0.0f;
+uniform float time=1.0f;
 
 uniform mat4 modelMatrix =mat4(1.0f);
 uniform mat4 viewMatrix=mat4(1.0f);
@@ -14,7 +14,9 @@ out vec4 vertexColourOut;
 void main()
 {
 
-mat4
+	mat4 MVPMatrix=projectionMatrix*viewMatrix*modelMatrix;
 
-	gl_Position=modelMatrix*vec4(newVertexPosition,1.0);
+	gl_Position=modelMatrix*vec4(vertexPosition,sin(time));
+	
+	vertexColourOut=vertexColour;
 }
