@@ -12,6 +12,7 @@
 #include <glm\gtc\type_ptr.hpp>
 
 #include "vertex.h"
+#include "Shader.h"
 
 
 using namespace glm;
