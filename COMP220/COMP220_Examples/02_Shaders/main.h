@@ -13,6 +13,6 @@
 
 #include "vertex.h"
 #include "Shader.h"
-
+#include "Texture.h"
 
 using namespace glm;
