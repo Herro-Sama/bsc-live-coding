@@ -145,27 +145,27 @@ int main(int argc, char* args[])
 		{ -0.5f, -0.5f, -0.5f, 0.0f, 0.5f, 0.5f, 1.0f, 0.0f, 0.0f},
 
 		//Left Hand Panel
-		{ -0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f },
+		{ -0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 1.0f, 1.0f },
 		{ -0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f },
-		{ -0.5f, -0.5f, 0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f },
+		{ -0.5f, -0.5f, 0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 1.0f },
 		{ -0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f },
-		{ -0.5f, 0.5f, -0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f },
-		{ -0.5f, -0.5f, 0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f },
+		{ -0.5f, 0.5f, -0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 1.0f, 0.0f },
+		{ -0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 1.0f, 1.0f },
 		
 		//Top Panel
-		{-0.5f, 0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f },
-		{ 0.5f, 0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f },
+		{-0.5f, 0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f },
+		{ 0.5f, 0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f },
 		{ -0.5f, 0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f },
-		{ 0.5f, 0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f },
-		{ 0.5f, 0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f },
+		{ 0.5f, 0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 0.0f },
+		{ 0.5f, 0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f },
 		{ -0.5f, 0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f },
 
 		//Front Panel
-		{ -0.5f, 0.5f, 0.5f,1.0f,0.0f,0.0f,1.0f, 0.0f, 0.0f },
-		{ 0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f },
+		{ -0.5f, 0.5f, 0.5f,1.0f,0.0f,0.0f,1.0f, 0.0f, 1.0f },
+		{ 0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 1.0f },
 		{ -0.5f, -0.5f, 0.5f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f },
-		{ 0.5f, -0.5f, 0.5f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f },
-		{ 0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f },
+		{ 0.5f, -0.5f, 0.5f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f },
+		{ 0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f },
 		{ -0.5f, -0.5f, 0.5f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f }
 	
 	};
@@ -215,13 +215,13 @@ int main(int argc, char* args[])
 
 	mat4 modelMatrix = translationMatrix*rotationMatrix;
 
-	vec3 cameraPosition = vec3(0.0f, 0.0f, 0.0f);
+	vec3 cameraPosition = vec3(0.0f, 0.0f, -5.0f);
 	vec3 cameraTarget = vec3(0.0f, 0.0f, 0.0f);
-	vec3 cameraUP = vec3(0.0f, 0.0f, 0.0f);
+	vec3 cameraUp = vec3(0.0f, 1.0f, 0.0f);
 
-	mat4 viewMatrix = lookAt(cameraPosition, cameraTarget, cameraUP);
+	mat4 viewMatrix = lookAt(cameraPosition, cameraTarget, cameraUp);
 
-	mat4 projectionMatrix = perspective(radians(90.0f), float(800 / 600), 0.1f, 100.0f);
+	mat4 projectionMatrix = perspective(radians(90.0f), float(16 / 9), 0.1f, 100.0f);
 	// Give our vertices to OpenGL.
 	//glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), g_vertex_buffer_data, GL_STATIC_DRAW);
 
@@ -268,13 +268,35 @@ int main(int argc, char* args[])
 				case SDLK_ESCAPE:
 					running = false;
 					break;
+
+				case SDLK_a:
+					cameraPosition.x += 0.1f;
+					cameraTarget.x += 0.1f;
+
+					break;
+
+				case SDLK_d:
+					cameraPosition.x -= 0.1f;
+					cameraTarget.x -= 0.1f;
+					break;
+
+				case SDLK_w:
+					cameraPosition.z += 0.1f;
+					cameraTarget.z += 0.1f;
+					break;
+				
+				case SDLK_s:
+					cameraPosition.z -= 0.1f;
+					cameraTarget.z -= 0.1f;
+					break;
+
 				}
 			}
 		}
 
-		float currentTicks = SDL_GetTicks();
+		viewMatrix = lookAt(cameraPosition, cameraTarget, cameraUp);
 
-		glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 
 		glActiveTexture(GL_TEXTURE0);
@@ -285,6 +307,8 @@ int main(int argc, char* args[])
 
 		glUseProgram(programID);
 
+		float currentTicks = SDL_GetTicks();
+
 		glUniform1f(timelocation, (float)(currentTicks / 1000.0f));
 
 		glUniformMatrix4fv(modelMatrixLocation, 1, GL_FALSE, value_ptr(modelMatrix));
@@ -292,7 +316,6 @@ int main(int argc, char* args[])
 		glUniformMatrix4fv(projectionMatrixLocation, 1, GL_FALSE, value_ptr(projectionMatrix));
 		glUniform1i(textureLocation, 0);
 	
-
 		// 1rst attribute buffer : vertices
 		glEnableVertexAttribArray(0);
 
