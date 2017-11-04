@@ -14,5 +14,7 @@
 #include "vertex.h"
 #include "Shader.h"
 #include "Texture.h"
+#include "Model.h"
+
 
 using namespace glm;
