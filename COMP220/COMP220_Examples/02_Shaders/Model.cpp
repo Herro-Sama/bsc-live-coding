@@ -1,78 +1,102 @@
 #include "Model.h"
 
-
-bool loadModelFromFile(const std::string& filename, GLuint VBO, GLuint EBO, unsigned int& numberOfVerts, unsigned int& numberOfIndices)
+bool loadModelFromFile(const std::string& filename, GLuint VBO, GLuint EBO, unsigned int& numVerts, unsigned int& numIndices)
 {
-	Assimp::Importer importer;
-	const aiScene* scene = importer.ReadFile(filename,aiProcessPreset_TargetRealtime_Fast|aiProcess_FlipUVs);
-
-	if (scene == nullptr)
-	{
-		printf("Error Loading Model %s", importer.GetErrorString());
-		return false;
-	}
-
 	std::vector<Vertex> vertices;
 	std::vector<unsigned int> indices;
 
-	for (unsigned int m = 0; m < scene->mNumMeshes; m++)
+	Assimp::Importer importer;
+
+	const aiScene* scene = importer.ReadFile(filename, aiProcess_JoinIdenticalVertices | aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenSmoothNormals | aiProcess_GenUVCoords | aiProcess_CalcTangentSpace);
+
+	if (!scene)
 	{
-		const aiMesh* currentAIMesh = scene->mMeshes[m];
-		for (unsigned int v = 0; v < currentAIMesh->mNumVertices; v++)
+		printf("Model Loading Error - %s\n", importer.GetErrorString());
+		return false;
+	}
+
+	for (int i = 0; i < scene->mNumMeshes; i++)
+	{
+		aiMesh *currentMesh=scene->mMeshes[i];
+
+		for (int v = 0; v < currentMesh->mNumVertices; v++)
 		{
-			const aiVector3D currentAIPosition = currentAIMesh->mVertices[v];
+			aiVector3D currentModelVertex = currentMesh->mVertices[v];
+			aiVector3D currentTextureCoordinates = currentMesh->mTextureCoords[0][v];
 
-			Vertex ourVertex;
-			ourVertex.x = currentAIPosition.x;
-			ourVertex.y = currentAIPosition.y;
-			ourVertex.z = currentAIPosition.z;
+			Vertex currentVertex = { currentModelVertex.x,currentModelVertex.y,currentModelVertex.z,1.0f,1.0f,1.0f,1.0f,currentTextureCoordinates.x,currentTextureCoordinates.y };
 
-			ourVertex.r = 0.0f; ourVertex.g = 1.0f; ourVertex.b = 1.0f; ourVertex.a = 1.0f;
-			ourVertex.tu = 0.0f; ourVertex.tv = 0.0f;
-
-			if(currentAIMesh->HasTextureCoords(0))
-			{
-
-				const aiVector3D currentTextureCoords = currentAIMesh->mTextureCoords[0][v];
-				ourVertex.tu = currentTextureCoords.x;
-				ourVertex.tv = currentTextureCoords.y;
-
-			}
-
-			if (currentAIMesh->HasVertexColors(0))
-			{
-
-				const aiColor4D currentColourCoords = currentAIMesh->mColors[0][v];
-				ourVertex.r = currentColourCoords.r;
-				ourVertex.g = currentColourCoords.g;
-				ourVertex.b = currentColourCoords.b;
-				ourVertex.a = currentColourCoords.a;
-
-			}
-
-
-			vertices.push_back(ourVertex);
+			vertices.push_back(currentVertex);
 		}
 
-
-		for (unsigned int f = 0; f < currentAIMesh->mNumFaces; f++)
+		for (int f = 0; f < currentMesh->mNumFaces; f++)
 		{
-			const aiFace currentFace = currentAIMesh->mFaces[f];
-			
-			indices.push_back(currentFace.mIndices[0]);
-			indices.push_back(currentFace.mIndices[1]);
-			indices.push_back(currentFace.mIndices[2]);
-
+			aiFace currentModelFace = currentMesh->mFaces[f];
+			indices.push_back(currentModelFace.mIndices[0]);
+			indices.push_back(currentModelFace.mIndices[1]);
+			indices.push_back(currentModelFace.mIndices[2]);
 		}
 	}
-	numberOfVerts = vertices.size();
-	numberOfIndices = indices.size();
 
+	numVerts = vertices.size();
+	numIndices = indices.size();
+
+	// Give our vertices to OpenGL.
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, numberOfVerts * sizeof(Vertex), vertices.data(), GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, numVerts * sizeof(Vertex), vertices.data(), GL_STATIC_DRAW);
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, numberOfIndices * sizeof(unsigned int), indices.data(), GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, numIndices * sizeof(unsigned int), indices.data(), GL_STATIC_DRAW);
 
 	return true;
+}
+
+bool loadMeshFromFile(const std::string & filename, std::vector<Mesh*>& meshes)
+{
+	std::vector<Vertex> vertices;
+	std::vector<unsigned int> indices;
+
+	Assimp::Importer importer;
+
+	const aiScene* scene = importer.ReadFile(filename, aiProcess_JoinIdenticalVertices | aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenSmoothNormals | aiProcess_GenUVCoords | aiProcess_CalcTangentSpace);
+
+	if (!scene)
+	{
+		printf("Model Loading Error - %s\n", importer.GetErrorString());
+		return false;
+	}
+
+	for (int i = 0; i < scene->mNumMeshes; i++)
+	{
+		aiMesh *currentMesh = scene->mMeshes[i];
+		Mesh *pMesh = new Mesh();
+		pMesh->init();
+
+		for (int v = 0; v < currentMesh->mNumVertices; v++)
+		{
+			aiVector3D currentModelVertex = currentMesh->mVertices[v];
+
+			aiVector3D currentTextureCoordinates = currentMesh->mTextureCoords[0][v];
+
+			Vertex currentVertex = { currentModelVertex.x,currentModelVertex.y,currentModelVertex.z,1.0f,1.0f,1.0f,1.0f,currentTextureCoordinates.x,currentTextureCoordinates.y };
+
+			vertices.push_back(currentVertex);
+		}
+
+		for (int f = 0; f < currentMesh->mNumFaces; f++)
+		{
+			aiFace currentModelFace = currentMesh->mFaces[f];
+			indices.push_back(currentModelFace.mIndices[0]);
+			indices.push_back(currentModelFace.mIndices[1]);
+			indices.push_back(currentModelFace.mIndices[2]);
+		}
+
+		pMesh->copyBufferData(vertices.data(), vertices.size(), indices.data(), indices.size());
+
+		meshes.push_back(pMesh);
+		vertices.clear();
+		indices.clear();
+	}
+
+	return true;;
 }
