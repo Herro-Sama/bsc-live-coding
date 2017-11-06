@@ -57,7 +57,6 @@ int main(int argc, char* args[])
 	vec3 trianglePosition = vec3(0.0f,0.0f,0.0f);
 	vec3 triangleScale = vec3(1.0f, 1.0f, 1.0f);
 	vec3 triangleRotation = vec3(0.0f, -2.0f, 0.0f);
-
 	
 	mat4 translationMatrix = translate(trianglePosition);
 	mat4 scaleMatrix = scale(triangleScale);
@@ -176,6 +175,8 @@ int main(int argc, char* args[])
 				}
 			}
 		}
+
+		SDL_SetRelativeMouseMode(SDL_bool(SDL_ENABLE));
 
 		currentTicks = SDL_GetTicks();
 		float deltaTime = (float)(currentTicks - lastTicks) / 1000.0f;
