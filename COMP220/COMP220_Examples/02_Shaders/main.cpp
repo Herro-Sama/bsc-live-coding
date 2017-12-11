@@ -50,27 +50,65 @@ int main(int argc, char* args[])
 		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, (char*)glewGetErrorString(glewError), "GLEW Init Failed", NULL);
 	}
 
-	std::vector<Mesh*> meshes;
-	loadMeshFromFile("basicCharacter.fbx", meshes);
-	GLuint textureID = loadTextureFromFile("skin_soldier.png");
+	std::vector<GameObject *> gameObjectList;
 
-	vec3 trianglePosition = vec3(0.0f,0.0f,0.0f);
-	vec3 triangleScale = vec3(1.0f, 1.0f, 1.0f);
-	vec3 triangleRotation = vec3(0.0f, -2.0f, 0.0f);
-	
-	mat4 translationMatrix = translate(trianglePosition);
-	mat4 scaleMatrix = scale(triangleScale);
-	mat4 rotationMatrix= rotate(triangleRotation.x, vec3(1.0f, 0.0f, 0.0f))*rotate(triangleRotation.y, vec3(0.0f, 1.0f, 0.0f))*rotate(triangleRotation.z, vec3(0.0f, 0.0f, 1.0f));
+	GameObject * soldier = new GameObject();
 
-	mat4 modelMatrix = translationMatrix*rotationMatrix*scaleMatrix;
+	soldier->loadMeshes("basicCharacter.fbx");
+	soldier->loadDiffuseMap("skin_soldier.png");
 
-	int xpos, ypos;
+	soldier->setPosition(glm::vec3(50.0f, 50.0f, 50.0f));
+	soldier->setScale(glm::vec3(1.0f, 1.0f, 5.0f));
+	soldier->setRotation(glm::vec3(0.0f, -2.0f, 0.0f));
 
-	vec3 cameraPosition = vec3(0.0f, 5.0f, -10.0f);
+	soldier->update();
+
+	soldier->loadShaderProgram("TextureVert.glsl", "TextureFrag.glsl");
+
+	gameObjectList.push_back(soldier);
+
+	soldier = new GameObject();
+
+	soldier->loadMeshes("basicCharacter.fbx");
+	soldier->loadDiffuseMap("skin_soldier.png");
+
+	soldier->setPosition(glm::vec3(50.0f, 50.0f, 50.0f));
+	soldier->setScale(glm::vec3(2.0f, 2.0f, 2.0f));
+	soldier->setRotation(glm::vec3(0.0f, 2.0f, 0.0f));
+
+	soldier->update();
+
+	soldier->loadShaderProgram("TextureVert.glsl", "TextureFrag.glsl");
+
+	gameObjectList.push_back(soldier);
+
+	soldier->loadMeshes("basicCharacter.fbx");
+	soldier->loadDiffuseMap("skin_soldier.png");
+
+	soldier->setPosition(glm::vec3(50.0f, 50.0f, 50.0f));
+	soldier->setScale(glm::vec3(3.0f, 7.5f, 1.0f));
+	soldier->setRotation(glm::vec3(0.0f, 5.0f, 0.0f));
+
+	soldier->update();
+
+	soldier->loadShaderProgram("TextureVert.glsl", "TextureFrag.glsl");
+
+	gameObjectList.push_back(soldier);
+
+	int xpos = 0, ypos = 0;
+
+	vec3 cameraPosition = vec3(0.0f, 0.0f, -10.0f);
 	vec3 cameraTarget = vec3(0.0f, 0.0f, 0.0f);
 	vec3 cameraUp = vec3(0.0f, 1.0f, 0.0f);
 
 	mat4 viewMatrix = lookAt(cameraPosition, cameraTarget, cameraUp);
+
+	//Lighting Stuff
+	vec3 lightDirection = vec3(0.0f, 0.0f, 1.0f);
+	vec4 diffuseLightColour = vec4(0.0f, 1.0f, 1.0f, 1.0f);
+
+	//Material Stuff
+	vec4 diffuseMaterialColour = vec4(0.8f, 0.8f, 0.8f, 1.0f);
 
 	// position
 	glm::vec3 position = glm::vec3(0, 0, 5);
@@ -84,12 +122,15 @@ int main(int argc, char* args[])
 	float speed = 3.0f; // 3 units / second
 	float mouseSpeed = 0.005f;
 
-	mat4 projectionMatrix = perspective(radians(90.0f), float(800 / 600), 0.1f, 100.0f);
+	mat4 projectionMatrix = perspective(radians(90.0f), float(4.0f / 3.0f), 0.1f, 100.0f);
 
 
-	GLuint programID = LoadShaders("textureVert.glsl", "textureFrag.glsl");
+	GLint lightDirectionLocation = glGetUniformLocation(soldier->getShaderProgramID(), "lightDirection");
+	GLint diffuselightColourLocation = glGetUniformLocation(soldier->getShaderProgramID(), "diffuseLightColour");
 
-	GLint fragColourLocation=glGetUniformLocation(programID, "fragColour");
+	//GLuint programID = LoadShaders("TextureVert.glsl", "TextureFrag.glsl");
+
+	/*GLint fragColourLocation=glGetUniformLocation(programID, "fragColour");
 	if (fragColourLocation < 0)
 	{
 		printf("Unable to find %s uniform\n", "fragColour");
@@ -103,10 +144,16 @@ int main(int argc, char* args[])
 		printf("Unable to find %s uniform\n", "time");
 	}
 
-	GLint modelMatrixLocation = glGetUniformLocation(programID, "modelMatrix");
-	GLint viewMatrixLocation = glGetUniformLocation(programID, "viewMatrix");
-	GLint projectionMatrixLocation = glGetUniformLocation(programID, "projectionMatrix");
-	GLint textureLocation = glGetUniformLocation(programID, "baseTexture");
+	*/
+	
+	//GLint modelMatrixLocation = glGetUniformLocation(programID, "modelMatrix");
+	//GLint viewMatrixLocation = glGetUniformLocation(soldier->getShaderProgramID(), "viewMatrix");
+	//GLint projectionMatrixLocation = glGetUniformLocation(soldier->getShaderProgramID(), "projectionMatrix");
+	//GLint textureLocation = glGetUniformLocation(programID, "baseTexture");
+	//GLint lightDirectionLocation = glGetUniformLocation(soldier->getShaderProgramID(), "lightDirection");
+	//GLint diffuselightColourLocation = glGetUniformLocation(soldier->getShaderProgramID(), "diffuseLightColour");
+	//GLint diffuseMaterialColourLocation = glGetUniformLocation(programID, "diffuseMaterialColour");
+
 
 	glEnable(GL_DEPTH_TEST);
 	int lastTicks = SDL_GetTicks();
@@ -176,15 +223,16 @@ int main(int argc, char* args[])
 			}
 		}
 
-		SDL_SetRelativeMouseMode(SDL_bool(SDL_ENABLE));
+		//SDL_SetRelativeMouseMode(SDL_bool(SDL_ENABLE));
 
 		currentTicks = SDL_GetTicks();
 		float deltaTime = (float)(currentTicks - lastTicks) / 1000.0f;
 
-		SDL_GetMouseState(&xpos, &ypos);
+		SDL_GetRelativeMouseState(&xpos, &ypos);
+		//printf("Mouse %i %i \n", xpos, ypos);
 
-		horizontalAngle += mouseSpeed * deltaTime * float(800 / 2 - xpos);
-		verticalAngle += mouseSpeed * deltaTime * float(600 / 2 - ypos);
+		horizontalAngle += mouseSpeed * deltaTime * float(xpos);
+		verticalAngle += mouseSpeed * deltaTime * float(ypos);
 
 		vec3 direction
 		(	
@@ -202,36 +250,67 @@ int main(int argc, char* args[])
 
 		vec3 up = cross(right, direction);
 
-		viewMatrix = lookAt(cameraPosition, cameraPosition + direction, cameraUp);
+		viewMatrix = lookAt(cameraPosition, glm::vec3(5.0f,0.0f,0.0f), cameraUp);
+
+		cameraTarget = direction;
+
+		for (GameObject * pCurrentObj : gameObjectList)
+	{
+		pCurrentObj->update();
+	}
 
 
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClearDepth(1.0f);
 		glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 
-
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, textureID);
-
-		glUseProgram(programID);
-
-		glUniform4fv(fragColourLocation, 1, fragColour);
-		glUniform1f(currentTimeLocation, (float)(currentTicks)/1000.0f);
-		glUniformMatrix4fv(modelMatrixLocation, 1, GL_FALSE, value_ptr(modelMatrix));
-		glUniformMatrix4fv(viewMatrixLocation, 1, GL_FALSE, value_ptr(viewMatrix));
-		glUniformMatrix4fv(projectionMatrixLocation, 1, GL_FALSE, value_ptr(projectionMatrix));
-		glUniform1i(textureLocation, 0);
-
-		for (Mesh *pMesh : meshes)
+		for (GameObject * pCurrentObj : gameObjectList)
 		{
-			pMesh->render();
+
+			mat4 MVPMatrix = projectionMatrix * viewMatrix * pCurrentObj->getModelMatrix();
+
+
+			pCurrentObj->preRender();
+
+			GLint viewMatrixLocation = glGetUniformLocation(pCurrentObj->getShaderProgramID(), "viewMatrix");
+			GLint projectionMatrixLocation = glGetUniformLocation(pCurrentObj->getShaderProgramID(), "projectionMatrix");
+
+			GLint MVPMatrixLocation = glGetUniformLocation(pCurrentObj->getShaderProgramID(), "MVPMatrix");
+
+			glUniformMatrix4fv(MVPMatrixLocation, 1, GL_FALSE, &MVPMatrix[0][0]);
+			glUniformMatrix4fv(viewMatrixLocation, 1, GL_FALSE, value_ptr(viewMatrix));
+			glUniformMatrix4fv(projectionMatrixLocation, 1, GL_FALSE, value_ptr(projectionMatrix));
+
+			pCurrentObj->render();
 		}
+
+
+		//glActiveTexture(GL_TEXTURE0);
+		//glBindTexture(GL_TEXTURE_2D, textureID);
+
+		//glUseProgram(programID);
+
+		//glUniform4fv(fragColourLocation, 1, fragColour);
+		//glUniform1f(currentTimeLocation, (float)(currentTicks)/1000.0f);
+		
+
+		//glUniform1i(textureLocation, 0);
+
+		glUniform3fv(lightDirectionLocation, 1, value_ptr(lightDirection));
+		glUniform4fv(diffuselightColourLocation, 1, value_ptr(diffuseLightColour));
+
+		//glUniform4fv(diffuseMaterialColourLocation, 1, value_ptr(diffuseMaterialColour));
+
+		//for (Mesh *pMesh : meshes)
+		//{
+		//	pMesh->render();
+		//}
 		SDL_GL_SwapWindow(window);
 
 		lastTicks = currentTicks;
 	}
 
-	auto iter = meshes.begin();
+	/*auto iter = meshes.begin();
 	while (iter != meshes.end())
 	{
 		if ((*iter))
@@ -243,12 +322,25 @@ int main(int argc, char* args[])
 		{
 			iter++;
 		}
-	}
+	}*/
 
-	meshes.clear();
+	/*meshes.clear();
 	glDeleteTextures(1, &textureID);
-	glDeleteProgram(programID);
+	glDeleteProgram(programID);*/
+	
+	auto iter = gameObjectList.begin();
+	while (iter != gameObjectList.end())
+	{
+		if ((*iter))
+		{
+			(*iter)->destroy();
+			delete (*iter);
+			(*iter) = nullptr;
+			iter = gameObjectList.erase(iter);
+		}
 
+	}
+	
 	SDL_GL_DeleteContext(GL_Context);
 	//Destroy the window and quit SDL2, NB we should do this after all cleanup in this order!!!
 	//https://wiki.libsdl.org/SDL_DestroyWindow

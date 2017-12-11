@@ -1,0 +1,15 @@
+#version 330 core
+out vec4 colour;
+
+in vec4 vertexColourOut;
+in vec2 vertexTextureCoordOut;
+in vec3 vertexNormalDir;
+uniform sampler2D baseTexture;
+uniform vec3 lightLocation;
+void main()
+{
+	float cosTheta = dot(vertexNormalDir, lightLocation );
+  //colour = fragmentColour;
+  colour=cosTheta*texture2D(baseTexture,vertexTextureCoordOut);
+
+}

@@ -1,0 +1,13 @@
+#version 330 core
+out vec4 colour;
+
+in vec4 vertexColourOut;
+in vec2 vertexTextureCoordOut;
+uniform sampler2D baseTexture;
+
+
+void main()
+{
+  //colour = fragmentColour;
+  colour=texture2D(baseTexture,vertexTextureCoordOut);
+}

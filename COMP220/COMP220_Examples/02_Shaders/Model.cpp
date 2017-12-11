@@ -23,8 +23,14 @@ bool loadModelFromFile(const std::string& filename, GLuint VBO, GLuint EBO, unsi
 		{
 			aiVector3D currentModelVertex = currentMesh->mVertices[v];
 			aiVector3D currentTextureCoordinates = currentMesh->mTextureCoords[0][v];
+			aiVector3D currentNormals = currentMesh->mNormals[v];
 
-			Vertex currentVertex = { currentModelVertex.x,currentModelVertex.y,currentModelVertex.z,1.0f,1.0f,1.0f,1.0f,currentTextureCoordinates.x,currentTextureCoordinates.y };
+
+			Vertex currentVertex = { currentModelVertex.x,currentModelVertex.y,currentModelVertex.z,
+				1.0f,1.0f,1.0f,1.0f,
+				currentTextureCoordinates.x,currentTextureCoordinates.y, 
+				currentNormals.x, currentNormals.y
+			};
 
 			vertices.push_back(currentVertex);
 		}
@@ -78,7 +84,14 @@ bool loadMeshFromFile(const std::string & filename, std::vector<Mesh*>& meshes)
 
 			aiVector3D currentTextureCoordinates = currentMesh->mTextureCoords[0][v];
 
-			Vertex currentVertex = { currentModelVertex.x,currentModelVertex.y,currentModelVertex.z,1.0f,1.0f,1.0f,1.0f,currentTextureCoordinates.x,currentTextureCoordinates.y };
+			aiVector3D currentNormals = currentMesh->mNormals[v];
+
+
+			Vertex currentVertex = { currentModelVertex.x,currentModelVertex.y,currentModelVertex.z,
+				1.0f,1.0f,1.0f,1.0f,
+				currentTextureCoordinates.x,currentTextureCoordinates.y,
+				currentNormals.x, currentNormals.y
+			};
 
 			vertices.push_back(currentVertex);
 		}

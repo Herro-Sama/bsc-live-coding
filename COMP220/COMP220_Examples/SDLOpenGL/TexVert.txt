@@ -1,0 +1,20 @@
+#version 330 core
+layout(location = 0) in vec3 vertexPos;
+layout(location=1) in vec4 vertexColour;
+layout(location=2) in vec2 vertexTextureCoord;
+
+
+out vec4 vertexColourOut;
+out vec2 vertexTextureCoordOut;
+
+uniform mat4 modelMatrix;
+uniform mat4 viewMatrix;
+uniform mat4 projectionMatrix;
+
+void main()
+{
+	vertexColourOut=vertexColour;
+	vertexTextureCoordOut=vertexTextureCoord;
+	mat4 MVPmatrix = projectionMatrix*viewMatrix*modelMatrix;
+	gl_Position =MVPmatrix * vec4(vertexPos,1.0);
+}
