@@ -82,6 +82,8 @@ int main(int argc, char* args[])
 
 	gameObjectList.push_back(soldier);
 
+	soldier = new GameObject();
+
 	soldier->loadMeshes("basicCharacter.fbx");
 	soldier->loadDiffuseMap("skin_soldier.png");
 
