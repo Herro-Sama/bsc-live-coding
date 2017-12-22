@@ -6,6 +6,26 @@
 int main(int argc, char* args[])
 {
 	initSDL();
+
+	sceneCamera = new Camera((800 / 600));
+
+	GLuint VertexArrayID;
+	glGenVertexArrays(1, &VertexArrayID);
+	glBindVertexArray(VertexArrayID);
+
+	GLuint vertexBuffer;
+	glGenBuffers(1, &vertexBuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
+
+	vec3 trianglePosition = vec3(0.0f);
+	mat4 modelMatrix = mat4(1.0f);
+	mat4 projectionMatrix;
+	mat4 viewMatrix;
+
+	mat4 MVPMatrix = projectionMatrix * viewMatrix * modelMatrix;
+
+	GLuint programID = LoadShaders("vertexShader.glsl", "fragmentShader.glsl");
+
 	//Event loop, we will loop until running is set to false, usually if escape has been pressed or window is closed
 	bool running = true;
 	//SDL Event structure, this will be checked in the while loop
@@ -34,40 +54,57 @@ int main(int argc, char* args[])
 					break;
 
 				case SDLK_w:
+					sceneCamera->move(0.5f);
 					break;
 
 				case SDLK_s:
+					sceneCamera->move(-0.5f);
 					break;
 
 				case SDLK_a:
+					sceneCamera->strafe(0.5f);
 					break;
 
 				case SDLK_d:
+					sceneCamera->strafe(-0.5f);
 					break;
 
 				case SDLK_LCTRL:
+					sceneCamera->lift(-0.5f);
 					break;
 
 				case SDLK_SPACE:
+					sceneCamera->lift(0.5f);
 					break;
 
 				}
 			}
 		}
-
-		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+		//Update Screenspace
+		glClearColor(0.5f, 0.5f, 1.0f, 1.0f);
 		glClearDepth(1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		
+		glUseProgram(programID);
 
-		SDL_GL_DeleteContext(GL_Context);
-		//Destroy the window and quit SDL2, NB we should do this after all cleanup in this order!!!
-		//https://wiki.libsdl.org/SDL_DestroyWindow
-		SDL_DestroyWindow(window);
-		//https://wiki.libsdl.org/SDL_Quit
-		SDL_Quit();
+		SDL_GL_SwapWindow(window);
+	}
+
+	glDeleteVertexArrays(1, &VertexArrayID);
+	glDeleteBuffers(1, &vertexBuffer);
+
+	glDeleteProgram(programID);
+
+	delete sceneCamera;
+
+	SDL_GL_DeleteContext(GL_Context);
+	//Destroy the window and quit SDL2, NB we should do this after all cleanup in this order!!!
+	//https://wiki.libsdl.org/SDL_DestroyWindow
+	SDL_DestroyWindow(window);
+	//https://wiki.libsdl.org/SDL_Quit
+	SDL_Quit();
 
 		return 0;
-	}
 }
 
 int initSDL()
@@ -84,7 +121,7 @@ int initSDL()
 
 	//Create a window, note we have to free the pointer returned using the DestroyWindow Function
 	//https://wiki.libsdl.org/SDL_CreateWindow
-	SDL_Window* window = SDL_CreateWindow("SDL2 Window", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 800, 600, SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL);
+	window = SDL_CreateWindow("SDL2 Window", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 800, 600, SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL);
 	//Checks to see if the window has been created, the pointer will have a value of some kind
 	if (window == nullptr)
 	{
@@ -121,3 +158,4 @@ int initSDL()
 
 	return 0;
 }
+
