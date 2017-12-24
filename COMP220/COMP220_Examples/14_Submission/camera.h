@@ -11,13 +11,13 @@
 class Camera
 {
 public:
-	Camera(float initalAspectRatio, glm::vec3& location = glm::vec3(40.0f, 5.0f, 40.0f), glm::vec3& centre = glm::vec3(-20.0f, 0.0f, -20.0f), glm::vec3& up = glm::vec3(0.0f, 1.0f, 0.0f));
+	Camera(float initalAspectRatio, glm::vec3& location = glm::vec3(40.0f, 5.0f, 40.0f), glm::vec3& target = glm::vec3(-20.0f, 0.0f, -20.0f), glm::vec3& up = glm::vec3(0.0f, 1.0f, 0.0f));
 
-	glm::vec3 forward = glm::normalize(centre - worldPosition);
+	glm::vec3 forward = glm::normalize(target - worldPosition);
 
 	glm::vec3 right = glm::cross(upDirection, forward);
 
-	glm::vec3 centreMag = (centre - worldPosition);
+	glm::vec3 centreMag = (target - worldPosition);
 
 	glm::mat4 cameraMatrix;
 
@@ -37,9 +37,9 @@ public:
 
 	glm::vec3& getworldPosition() { return worldPosition; };
 
-	void setCentre(glm::vec3& newCentre) {centre = newCentre;};
+	void setTarget(glm::vec3& newTarget) { target = newTarget;};
 
-	glm::vec3& getCentre() { return centre; };
+	glm::vec3& getCentre() { return target; };
 
 	void setUp(glm::vec3 newUpDirection) { upDirection = newUpDirection; };
 
@@ -49,10 +49,10 @@ private:
 
 	glm::vec3 worldPosition = glm::vec3(40.0f, 5.0f, 40.0f);
 
-	glm::vec3 centre = glm::vec3(45.0f, 0.0f, 0.0f);
+	glm::vec3 target = glm::vec3(45.0f, 0.0f, 0.0f);
 
 	glm::vec3 upDirection = glm::vec3(0.0f, 1.0f, 0.0f);
-
+	
 	void update();
 
 	float mouseSensitivity = 200.0f;

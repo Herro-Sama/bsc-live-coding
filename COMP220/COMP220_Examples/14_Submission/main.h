@@ -26,4 +26,9 @@ Camera* sceneCamera;
 
 int initSDL();
 
+void deleteSDL();
+
+void draw_Grid();
+
+
 using namespace glm;

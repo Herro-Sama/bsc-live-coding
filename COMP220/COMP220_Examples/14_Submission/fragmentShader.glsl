@@ -1,10 +1,15 @@
 #version 330 core
 
-out vec3 Colour;
+in vec4 vertexColourOut;
+in vec2 vertexTextureCoordOut;
 
-in vec4 TriangleColour;
+out vec4 Colour;
+
+uniform vec4 fragColour=vec4(1.0,1.0,1.0,1.0);
+
+uniform sampler2D baseTexture;
 
 void main()
 {
-	Colour = vec3(0.1f,0.1f,0.5f);
+	Colour = texture2D(baseTexture, vertexTextureCoordOut);
 }

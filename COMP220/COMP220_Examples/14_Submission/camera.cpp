@@ -1,16 +1,16 @@
 #include "camera.h"
 
-Camera::Camera(float initalAspectRatio, glm::vec3 & location, glm::vec3 & centre, glm::vec3 & up)
+Camera::Camera(float initalAspectRatio, glm::vec3 & location, glm::vec3 & target, glm::vec3 & up)
 {
 	aspectRatio = initalAspectRatio;
 
 	this->worldPosition = location;
 
-	this->centre = centre;
+	this->target = target;
 
 	this->upDirection = up;
 
-	glm::mat4 cameraMatrix = lookAt(worldPosition, centre, upDirection);
+	glm::mat4 cameraMatrix = lookAt(worldPosition, target, upDirection);
 
 	update();
 
@@ -23,8 +23,8 @@ void Camera::strafe(float x)
 	worldPosition.x += strafeDirection.x;
 	worldPosition.z += strafeDirection.z;
 
-	centre.x += strafeDirection.x;
-	centre.z += strafeDirection.z;
+	target.x += strafeDirection.x;
+	target.z += strafeDirection.z;
 
 	update();
 }
@@ -35,8 +35,8 @@ void Camera::move(float z)
 
 	worldPosition.x += moveDirection.x;
 	worldPosition.z += moveDirection.z;
-	centre.x += moveDirection.x;
-	centre.z += moveDirection.z;
+	target.x += moveDirection.x;
+	target.z += moveDirection.z;
 
 	update();
 }
@@ -46,19 +46,21 @@ void Camera::lift(float y)
 	glm::vec3 liftDirection = upDirection * y;
 
 	worldPosition.y += liftDirection.y;
-	centre.y += liftDirection.y;
+	target.y += liftDirection.y;
 
 	update();
 }
 
 void Camera::rotate(float x, float y)
-{
+{	
+	target = worldPosition + length * glm::vec3(cos(x), y, sin(x));
+
 	update();
 }
 
 void Camera::update()
 {
-	forward = glm::normalize(centre - worldPosition);
+	forward = glm::normalize(target - worldPosition);
 	right = glm::cross(upDirection, forward);
-	cameraMatrix = lookAt(worldPosition, centre, upDirection);
+	cameraMatrix = lookAt(worldPosition,target, upDirection);
 }

@@ -9,6 +9,22 @@ int main(int argc, char* args[])
 
 	sceneCamera = new Camera((800 / 600));
 
+	mat4 viewMatrix = sceneCamera->cameraMatrix;
+
+	std::vector<GameObject *> gameObjectList;
+
+	GameObject * soldier = new GameObject();
+
+	soldier->loadMeshes("basicCharacter.fbx");
+	soldier->loadDiffuseMap("skin_soldier.png");
+	soldier->setScale(glm::vec3(1.0f, 5.0f, 1.0f));
+	
+	soldier->update();
+
+	soldier->loadShaderProgram("vertexShader.glsl", "fragmentShader.glsl");
+
+	gameObjectList.push_back(soldier);
+
 	GLuint VertexArrayID;
 	glGenVertexArrays(1, &VertexArrayID);
 	glBindVertexArray(VertexArrayID);
@@ -17,14 +33,25 @@ int main(int argc, char* args[])
 	glGenBuffers(1, &vertexBuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
 
-	vec3 trianglePosition = vec3(0.0f);
-	mat4 modelMatrix = mat4(1.0f);
-	mat4 projectionMatrix;
-	mat4 viewMatrix;
+	mat4 projectionMatrix = perspective(radians(90.0f), float(4.0f / 3.0f), 0.1f, 100.0f);
 
-	mat4 MVPMatrix = projectionMatrix * viewMatrix * modelMatrix;
 
-	GLuint programID = LoadShaders("vertexShader.glsl", "fragmentShader.glsl");
+	int mouseXPosition = 0.0f;
+	int mouseYPosition = 0.0f;
+	
+	// horizontal angle : toward -Z
+	float horizontalAngle = 3.14f;
+	// vertical angle : 0, look at the horizon
+	float verticalAngle = 0.0f;
+	// Initial Field of View
+	float initialFoV = 90.0f;
+
+	float speed = 3.0f; // 3 units / second
+	float mouseSpeed = 0.005f;
+
+	glEnable(GL_DEPTH_TEST);
+	int lastTicks = SDL_GetTicks();
+	int currentTicks = SDL_GetTicks();
 
 	//Event loop, we will loop until running is set to false, usually if escape has been pressed or window is closed
 	bool running = true;
@@ -81,30 +108,66 @@ int main(int argc, char* args[])
 			}
 		}
 		//Update Screenspace
-		glClearColor(0.5f, 0.5f, 1.0f, 1.0f);
+		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 		glClearDepth(1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		currentTicks = SDL_GetTicks();
+		float deltaTime = (float)(currentTicks - lastTicks) / 1000.0f;
+
+		SDL_GetMouseState(&mouseXPosition, &mouseYPosition);
+
+		horizontalAngle += mouseSpeed * deltaTime * float(mouseXPosition);
+		verticalAngle += mouseSpeed * deltaTime * float(mouseYPosition);
 		
-		glUseProgram(programID);
+		sceneCamera->rotate(horizontalAngle, verticalAngle);
+
+		viewMatrix = sceneCamera->cameraMatrix;
+
+		draw_Grid();
+
+		for (GameObject * pCurrentObj : gameObjectList)
+		{
+
+			mat4 MVPMatrix = projectionMatrix * viewMatrix * pCurrentObj->getModelMatrix();
+
+			pCurrentObj->preRender();
+
+			GLint MVPMatrixLocation = glGetUniformLocation(pCurrentObj->getShaderProgramID(), "MVPMatrix");
+
+			glUniformMatrix4fv(MVPMatrixLocation, 1, GL_FALSE, &MVPMatrix[0][0]);
+
+			pCurrentObj->render();
+
+		}
+
 
 		SDL_GL_SwapWindow(window);
+
+		lastTicks = currentTicks;
 	}
 
 	glDeleteVertexArrays(1, &VertexArrayID);
 	glDeleteBuffers(1, &vertexBuffer);
 
-	glDeleteProgram(programID);
-
 	delete sceneCamera;
 
-	SDL_GL_DeleteContext(GL_Context);
-	//Destroy the window and quit SDL2, NB we should do this after all cleanup in this order!!!
-	//https://wiki.libsdl.org/SDL_DestroyWindow
-	SDL_DestroyWindow(window);
-	//https://wiki.libsdl.org/SDL_Quit
-	SDL_Quit();
+	auto iter = gameObjectList.begin();
+	while (iter != gameObjectList.end())
+	{
+		if ((*iter))
+		{
 
-		return 0;
+			(*iter)->destroy();
+			delete (*iter);
+			(*iter) = nullptr;
+			iter = gameObjectList.erase(iter);
+		}
+	}
+
+	deleteSDL();
+
+	return 0;
 }
 
 int initSDL()
@@ -157,5 +220,30 @@ int initSDL()
 	}
 
 	return 0;
+}
+
+void deleteSDL()
+{
+	SDL_GL_DeleteContext(GL_Context);
+	//Destroy the window and quit SDL2, NB we should do this after all cleanup in this order!!!
+	//https://wiki.libsdl.org/SDL_DestroyWindow
+	SDL_DestroyWindow(window);
+	//https://wiki.libsdl.org/SDL_Quit
+	SDL_Quit();
+}
+
+void draw_Grid()
+{
+	for (float i = -500; i <= 500; i += 5)	
+	{
+		glBegin(GL_LINES);
+		glColor3ub(0, 0, 0);
+		glVertex3f(-500, 0, i);
+		glVertex3f(500, 0, i);
+		glVertex3f(i, 0, -500);
+		glVertex3f(i, 0, 500);
+		glEnd();
+	}
+
 }
 
