@@ -17,8 +17,35 @@ int main(int argc, char* args[])
 
 	soldier->loadMeshes("basicCharacter.fbx");
 	soldier->loadDiffuseMap("skin_soldier.png");
-	soldier->setScale(glm::vec3(1.0f, 5.0f, 1.0f));
+	soldier->setPosition(glm::vec3(0.0f, 0.0f, 0.0f));
+	soldier->setScale(glm::vec3(1.0f, 1.0f, 1.0f));
 	
+	soldier->update();
+
+	soldier->loadShaderProgram("vertexShader.glsl", "fragmentShader.glsl");
+
+	gameObjectList.push_back(soldier);
+
+	soldier = new GameObject();
+
+	soldier->loadMeshes("basicCharacter.fbx");
+	soldier->loadDiffuseMap("skin_woman.png");
+	soldier->setPosition(glm::vec3(10.0f, 0.0f, 0.0f));
+	soldier->setScale(glm::vec3(1.0f, 1.0f, 1.0f));
+
+	soldier->update();
+
+	soldier->loadShaderProgram("vertexShader.glsl", "fragmentShader.glsl");
+
+	gameObjectList.push_back(soldier);
+
+	soldier = new GameObject();
+
+	soldier->loadMeshes("basicCharacter.fbx");
+	soldier->loadDiffuseMap("skin_man.png");
+	soldier->setPosition(glm::vec3(-10.0f, 0.0f, 0.0f));
+	soldier->setScale(glm::vec3(1.0f, 1.0f, 1.0f));
+
 	soldier->update();
 
 	soldier->loadShaderProgram("vertexShader.glsl", "fragmentShader.glsl");
@@ -120,7 +147,7 @@ int main(int argc, char* args[])
 		horizontalAngle += mouseSpeed * deltaTime * float(mouseXPosition);
 		verticalAngle += mouseSpeed * deltaTime * float(mouseYPosition);
 		
-		sceneCamera->rotate(horizontalAngle, verticalAngle);
+		//sceneCamera->rotate(horizontalAngle, verticalAngle);
 
 		viewMatrix = sceneCamera->cameraMatrix;
 
