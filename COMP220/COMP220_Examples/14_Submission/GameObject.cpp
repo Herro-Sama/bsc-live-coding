@@ -57,21 +57,9 @@ void GameObject::preRender()
 
 	glUseProgram(m_ShaderProgramID);
 
-	//GLint modelMatrixLocation = glGetUniformLocation(m_ShaderProgramID, "modelMatrix");
-
 	GLint textureLocation = glGetUniformLocation(m_ShaderProgramID, "baseTexture");
 
-	//GLint diffuseMaterialColourLocation = glGetUniformLocation(m_ShaderProgramID, "diffuseMaterialColour");
-	//GLint specularPowerLocation = glGetUniformLocation(m_ShaderProgramID, "specularPower");
-
-	//glUniformMatrix4fv(modelMatrixLocation, 1, GL_FALSE, value_ptr(m_ModelMatrix));
-
 	glUniform1i(textureLocation, 0);
-
-	//glUniform4fv(diffuseMaterialColourLocation, 1, value_ptr(m_DiffuseMaterialColour));
-
-	//glUniform1f(specularPowerLocation, m_SpecularPower);
-
 }
 
 void GameObject::render()

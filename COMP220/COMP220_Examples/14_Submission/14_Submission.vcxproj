@@ -154,6 +154,8 @@ copy $(ProjectDir)\*.glsl $(OutDir)\*.glsl
   </ItemGroup>
   <ItemGroup>
     <None Include="fragmentShader.glsl" />
+    <None Include="lightFragmentShader.glsl" />
+    <None Include="lightVertexShader.glsl" />
     <None Include="vertexShader.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

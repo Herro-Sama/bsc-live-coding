@@ -2,15 +2,15 @@
 
 Camera::Camera(float initalAspectRatio, glm::vec3 & location, glm::vec3 & target, glm::vec3 & up)
 {
-	aspectRatio = initalAspectRatio;
+	m_AspectRatio = initalAspectRatio;
 
-	this->worldPosition = location;
+	this->m_WorldPosition = location;
 
-	this->target = target;
+	this->m_Target = target;
 
-	this->upDirection = up;
+	this->m_UpDirection = up;
 
-	glm::mat4 cameraMatrix = lookAt(worldPosition, target, upDirection);
+	glm::mat4 cameraMatrix = lookAt(m_WorldPosition, target, m_UpDirection);
 
 	update();
 
@@ -18,49 +18,52 @@ Camera::Camera(float initalAspectRatio, glm::vec3 & location, glm::vec3 & target
 
 void Camera::strafe(float x)
 {
-	glm::vec3 strafeDirection = right*x;
+	glm::vec3 strafeDirection = m_Right*x;
 
-	worldPosition.x += strafeDirection.x;
-	worldPosition.z += strafeDirection.z;
+	m_WorldPosition.x += strafeDirection.x;
+	m_WorldPosition.z += strafeDirection.z;
 
-	target.x += strafeDirection.x;
-	target.z += strafeDirection.z;
+	m_Target.x += strafeDirection.x;
+	m_Target.z += strafeDirection.z;
 
 	update();
 }
 
 void Camera::move(float z)
 {
-	glm::vec3 moveDirection = forward * z;
+	glm::vec3 moveDirection = m_Forward * z;
 
-	worldPosition.x += moveDirection.x;
-	worldPosition.z += moveDirection.z;
-	target.x += moveDirection.x;
-	target.z += moveDirection.z;
+	m_WorldPosition.x += moveDirection.x;
+	m_WorldPosition.z += moveDirection.z;
+	m_Target.x += moveDirection.x;
+	m_Target.z += moveDirection.z;
 
 	update();
 }
 
 void Camera::lift(float y)
 {
-	glm::vec3 liftDirection = upDirection * y;
+	glm::vec3 liftDirection = m_UpDirection * y;
 
-	worldPosition.y += liftDirection.y;
-	target.y += liftDirection.y;
+	m_WorldPosition.y += liftDirection.y;
+	m_Target.y += liftDirection.y;
 
 	update();
 }
 
 void Camera::rotate(float x, float y)
 {	
-	target = worldPosition + length * glm::vec3(cos(x), y, sin(x));
+
+	glm::vec3 rotationAmount(x, 0, y);
+	
+	cameraMatrix = lookAt(m_WorldPosition, rotationAmount, m_UpDirection);
 
 	update();
 }
 
 void Camera::update()
 {
-	forward = glm::normalize(target - worldPosition);
-	right = glm::cross(upDirection, forward);
-	cameraMatrix = lookAt(worldPosition,target, upDirection);
+	m_Forward = glm::normalize(m_Target - m_WorldPosition);
+	m_Right = glm::cross(m_UpDirection, m_Forward);
+	cameraMatrix += lookAt(m_WorldPosition, m_Target, m_UpDirection);
 }

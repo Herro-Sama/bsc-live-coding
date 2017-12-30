@@ -7,7 +7,7 @@ int main(int argc, char* args[])
 {
 	initSDL();
 
-	sceneCamera = new Camera((800 / 600));
+	sceneCamera = new Camera((800 / 600),vec3(0.0f, 0.0f, -1.0f), vec3(5.0f, 5.0f, 5.0f));
 
 	mat4 viewMatrix = sceneCamera->cameraMatrix;
 
@@ -35,7 +35,7 @@ int main(int argc, char* args[])
 
 	soldier->update();
 
-	soldier->loadShaderProgram("vertexShader.glsl", "fragmentShader.glsl");
+	soldier->loadShaderProgram("lightVertexShader.glsl", "lightFragmentShader.glsl");
 
 	gameObjectList.push_back(soldier);
 
@@ -62,6 +62,11 @@ int main(int argc, char* args[])
 
 	mat4 projectionMatrix = perspective(radians(90.0f), float(4.0f / 3.0f), 0.1f, 100.0f);
 
+	vec3 lightDirection = vec3(0.0f, 0.0f, -1.0f);
+
+	vec4 diffuseLightColour = vec4(1.0f, 1.0f, 1.0f, 1.0f);
+
+	vec4 diffuseMaterialColour = vec4(0.0f, 0.0f, 0.0f, 1.0f);
 
 	int mouseXPosition = 0.0f;
 	int mouseYPosition = 0.0f;
@@ -79,6 +84,7 @@ int main(int argc, char* args[])
 	glEnable(GL_DEPTH_TEST);
 	int lastTicks = SDL_GetTicks();
 	int currentTicks = SDL_GetTicks();
+
 
 	//Event loop, we will loop until running is set to false, usually if escape has been pressed or window is closed
 	bool running = true;
@@ -130,7 +136,6 @@ int main(int argc, char* args[])
 				case SDLK_SPACE:
 					sceneCamera->lift(0.5f);
 					break;
-
 				}
 			}
 		}
@@ -147,11 +152,11 @@ int main(int argc, char* args[])
 		horizontalAngle += mouseSpeed * deltaTime * float(mouseXPosition);
 		verticalAngle += mouseSpeed * deltaTime * float(mouseYPosition);
 		
-		//sceneCamera->rotate(horizontalAngle, verticalAngle);
+		sceneCamera->rotate(float(mouseXPosition), float(mouseYPosition));
+
+
 
 		viewMatrix = sceneCamera->cameraMatrix;
-
-		draw_Grid();
 
 		for (GameObject * pCurrentObj : gameObjectList)
 		{
@@ -160,9 +165,22 @@ int main(int argc, char* args[])
 
 			pCurrentObj->preRender();
 
+			GLuint lightDirectionLocation = glGetUniformLocation(pCurrentObj->getShaderProgramID(), "lightDirection");
+			GLuint diffuseLightColourLocation = glGetUniformLocation(pCurrentObj->getShaderProgramID(), "diffuseLightColour");
+			GLuint diffuseMaterialColourLocation = glGetUniformLocation(pCurrentObj->getShaderProgramID(), "diffuseMaterialColour");
+
+			glUniform1i(lightDirectionLocation, 0);
+			glUniform1i(diffuseLightColourLocation, 0);
+			glUniform1i(diffuseMaterialColourLocation, 0);
+
+
+
+
 			GLint MVPMatrixLocation = glGetUniformLocation(pCurrentObj->getShaderProgramID(), "MVPMatrix");
 
 			glUniformMatrix4fv(MVPMatrixLocation, 1, GL_FALSE, &MVPMatrix[0][0]);
+
+
 
 			pCurrentObj->render();
 
@@ -258,19 +276,3 @@ void deleteSDL()
 	//https://wiki.libsdl.org/SDL_Quit
 	SDL_Quit();
 }
-
-void draw_Grid()
-{
-	for (float i = -500; i <= 500; i += 5)	
-	{
-		glBegin(GL_LINES);
-		glColor3ub(0, 0, 0);
-		glVertex3f(-500, 0, i);
-		glVertex3f(500, 0, i);
-		glVertex3f(i, 0, -500);
-		glVertex3f(i, 0, 500);
-		glEnd();
-	}
-
-}
-

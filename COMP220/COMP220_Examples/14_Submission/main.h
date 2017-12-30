@@ -11,6 +11,8 @@
 #include <glm\glm.hpp>
 #include <glm\gtx\transform.hpp>
 #include <glm\gtc\type_ptr.hpp>
+#include <GL\GLU.h>
+#include <gl\GLU.h>
 
 #include "vertex.h"
 #include "shader.h"
@@ -27,8 +29,6 @@ Camera* sceneCamera;
 int initSDL();
 
 void deleteSDL();
-
-void draw_Grid();
 
 
 using namespace glm;
