@@ -62,12 +62,6 @@ int main(int argc, char* args[])
 
 	mat4 projectionMatrix = perspective(radians(90.0f), float(4.0f / 3.0f), 0.1f, 100.0f);
 
-	vec3 lightDirection = vec3(0.0f, 0.0f, -1.0f);
-
-	vec4 diffuseLightColour = vec4(1.0f, 1.0f, 1.0f, 1.0f);
-
-	vec4 diffuseMaterialColour = vec4(0.0f, 0.0f, 0.0f, 1.0f);
-
 	int mouseXPosition = 0.0f;
 	int mouseYPosition = 0.0f;
 	
@@ -92,6 +86,7 @@ int main(int argc, char* args[])
 	SDL_Event ev;
 	while (running)
 	{
+
 		//Poll for the events which have happened in this frame
 		//https://wiki.libsdl.org/SDL_PollEvent
 		while (SDL_PollEvent(&ev))
@@ -139,20 +134,25 @@ int main(int argc, char* args[])
 				}
 			}
 		}
-		//Update Screenspace
-		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-		glClearDepth(1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		SDL_GetRelativeMouseState(&mouseXPosition, &mouseYPosition);
+
+
 
 		currentTicks = SDL_GetTicks();
 		float deltaTime = (float)(currentTicks - lastTicks) / 1000.0f;
 
-		SDL_GetMouseState(&mouseXPosition, &mouseYPosition);
+		if (mouseXPosition != 0 && mouseYPosition != 0)
+		{
+			horizontalAngle += mouseSpeed * deltaTime * float(mouseXPosition);
+			verticalAngle += mouseSpeed * deltaTime * float(mouseYPosition);
 
-		horizontalAngle += mouseSpeed * deltaTime * float(mouseXPosition);
-		verticalAngle += mouseSpeed * deltaTime * float(mouseYPosition);
-		
-		sceneCamera->rotate(float(mouseXPosition), float(mouseYPosition));
+			sceneCamera->rotate(float(mouseXPosition), float(mouseYPosition));
+		}
+		//Update Screenspace
+		glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
+		glClearDepth(1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
 
@@ -160,6 +160,13 @@ int main(int argc, char* args[])
 
 		for (GameObject * pCurrentObj : gameObjectList)
 		{
+
+			vec3 lightDirection = vec3(0.0f, 0.0f, 1.0f);
+
+			vec4 diffuseLightColour = vec4(1.0f, 1.0f, 1.0f, 1.0f);
+
+			vec4 diffuseMaterialColour = vec4(0.0f, 0.5f, 0.5f, 1.0f);
+
 
 			mat4 MVPMatrix = projectionMatrix * viewMatrix * pCurrentObj->getModelMatrix();
 
@@ -169,12 +176,15 @@ int main(int argc, char* args[])
 			GLuint diffuseLightColourLocation = glGetUniformLocation(pCurrentObj->getShaderProgramID(), "diffuseLightColour");
 			GLuint diffuseMaterialColourLocation = glGetUniformLocation(pCurrentObj->getShaderProgramID(), "diffuseMaterialColour");
 
-			glUniform1i(lightDirectionLocation, 0);
-			glUniform1i(diffuseLightColourLocation, 0);
-			glUniform1i(diffuseMaterialColourLocation, 0);
+			glUniform3fv(lightDirectionLocation, 1, value_ptr(lightDirection));
+			glUniform4fv(diffuseLightColourLocation, 1, value_ptr(diffuseLightColour));
+			glUniform4fv(diffuseMaterialColourLocation, 1, value_ptr(diffuseMaterialColour));
 
+			GLint modelMatrixLocation = glGetUniformLocation(pCurrentObj->getShaderProgramID(), "modelMatrix");
 
+			mat4 ModelMatrix = pCurrentObj->getModelMatrix();
 
+			glUniformMatrix4fv(modelMatrixLocation, 1, GL_FALSE, &ModelMatrix[0][0]);
 
 			GLint MVPMatrixLocation = glGetUniformLocation(pCurrentObj->getShaderProgramID(), "MVPMatrix");
 

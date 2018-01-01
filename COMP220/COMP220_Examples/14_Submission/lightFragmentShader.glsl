@@ -13,5 +13,5 @@ uniform sampler2D baseTexture;
 
 void main()
 {
-	Colour = diffuse;
+	Colour = diffuse * texture(baseTexture,vertexTextureCoordOut);
 }

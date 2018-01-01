@@ -53,10 +53,11 @@ void Camera::lift(float y)
 
 void Camera::rotate(float x, float y)
 {	
-
-	glm::vec3 rotationAmount(x, 0, y);
 	
-	cameraMatrix = lookAt(m_WorldPosition, rotationAmount, m_UpDirection);
+	m_Target = glm::vec3(
+		cos(y) * sin(x),
+		sin(y),
+		cos(y) * cos(x));
 
 	update();
 }
@@ -65,5 +66,5 @@ void Camera::update()
 {
 	m_Forward = glm::normalize(m_Target - m_WorldPosition);
 	m_Right = glm::cross(m_UpDirection, m_Forward);
-	cameraMatrix += lookAt(m_WorldPosition, m_Target, m_UpDirection);
+	cameraMatrix = lookAt(m_WorldPosition, m_Target, m_UpDirection);
 }
