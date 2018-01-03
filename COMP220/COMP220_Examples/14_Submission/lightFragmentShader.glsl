@@ -2,8 +2,8 @@
 
 in vec4 vertexColourOut;
 in vec2 vertexTextureCoordOut;
-in vec3 vertexNormalsOut;
 in vec4 diffuse;
+in vec4 specular;
 
 out vec4 Colour;
 
@@ -13,5 +13,5 @@ uniform sampler2D baseTexture;
 
 void main()
 {
-	Colour = diffuse * texture(baseTexture,vertexTextureCoordOut);
+	Colour = diffuse * texture(baseTexture,vertexTextureCoordOut) + specular;
 }

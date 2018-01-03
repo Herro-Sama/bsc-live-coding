@@ -161,12 +161,19 @@ int main(int argc, char* args[])
 		for (GameObject * pCurrentObj : gameObjectList)
 		{
 
-			vec3 lightDirection = vec3(0.0f, 0.0f, 1.0f);
+			vec3 lightDirection = vec3(0.0f, 0.0f, 5.0f);
 
-			vec4 diffuseLightColour = vec4(1.0f, 1.0f, 1.0f, 1.0f);
+			vec4 diffuseLightColour = vec4(0.0f, 0.5f, 0.0f, 1.0f);
 
 			vec4 diffuseMaterialColour = vec4(0.0f, 0.5f, 0.5f, 1.0f);
 
+			vec3 CameraPosition = sceneCamera->getworldPosition();
+
+			vec4 specularLightColour = vec4(1.0f, 1.0f, 1.0f, 1.0f);
+
+			vec4 specularMaterialColour = vec4(1.0f, 1.0f, 1.0f, 1.0f);
+
+			float specularPower = 25.0f;
 
 			mat4 MVPMatrix = projectionMatrix * viewMatrix * pCurrentObj->getModelMatrix();
 
@@ -176,9 +183,22 @@ int main(int argc, char* args[])
 			GLuint diffuseLightColourLocation = glGetUniformLocation(pCurrentObj->getShaderProgramID(), "diffuseLightColour");
 			GLuint diffuseMaterialColourLocation = glGetUniformLocation(pCurrentObj->getShaderProgramID(), "diffuseMaterialColour");
 
+			GLuint cameraPositionLocation = glGetUniformLocation(pCurrentObj->getShaderProgramID(), "cameraPosition");
+
+			GLuint specularLightColourLocation = glGetUniformLocation(pCurrentObj->getShaderProgramID(), "specularLightColour");
+			GLuint specularMaterialColourLocation = glGetUniformLocation(pCurrentObj->getShaderProgramID(), "specularMaterialColour");
+			GLuint specularPowerLocation = glGetUniformLocation(pCurrentObj->getShaderProgramID(), "specularPower");
+
+
 			glUniform3fv(lightDirectionLocation, 1, value_ptr(lightDirection));
 			glUniform4fv(diffuseLightColourLocation, 1, value_ptr(diffuseLightColour));
 			glUniform4fv(diffuseMaterialColourLocation, 1, value_ptr(diffuseMaterialColour));
+
+			glUniform3fv(cameraPositionLocation, 1, value_ptr(CameraPosition));
+
+			glUniform4fv(diffuseLightColourLocation, 1, value_ptr(diffuseLightColour));
+			glUniform4fv(diffuseMaterialColourLocation, 1, value_ptr(diffuseMaterialColour));
+			glUniform1f(specularPowerLocation, specularPower);
 
 			GLint modelMatrixLocation = glGetUniformLocation(pCurrentObj->getShaderProgramID(), "modelMatrix");
 
