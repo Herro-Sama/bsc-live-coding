@@ -6,10 +6,10 @@
 #include <glm\gtx\transform.hpp>
 #include <glm\gtc\type_ptr.hpp>
 
-#include "Model.h"
-#include "Mesh.h"
-#include "Texture.h"
-#include "Shader.h"
+#include "model.h"
+#include "texture.h"
+#include "shader.h"
+#include "transform.h"
 
 class GameObject
 {
@@ -17,37 +17,35 @@ public:
 	GameObject();
 	~GameObject();
 
-	void setPosition(const glm::vec3& position)
+	class Transform
 	{
-		m_Position = position;
-	};
-	glm::vec3& GetPosition()
-	{
-		return m_Position;
-	};
+	public:
+		Transform();
+		Transform(GameObject * ref) : parentRef(ref){}
 
-	void setScale(const glm::vec3& scale)
-	{
-		m_Scale = scale;
-	};
-	glm::vec3& GetScale()
-	{
-		return m_Scale;
-	};
+		void setPosition(glm::vec3& newPosition);
+		void setRotation(glm::vec3& newRotation);
+		void setScale(glm::vec3& newScale);
 
-	void setRotation(const glm::vec3& rotation)
-	{
-		m_Rotation = rotation;
-	};
-	glm::vec3& GetRotation()
-	{
-		return m_Rotation;
-	};
+		void update();
 
-	glm::mat4& getModelMatrix()
-	{
-		return m_ModelMatrix;
-	};
+		glm::vec3 getPosition();
+		glm::vec3 getRotation();
+		glm::vec3 getScale();
+
+		glm::mat4 getModelMatrix();
+
+
+	private:
+		GameObject * parentRef;
+
+		glm::vec3 m_Position;
+		glm::vec3 m_Scale;
+		glm::vec3 m_Rotation;
+
+		glm::mat4 m_ModelMatrix;
+
+	}Transform;	
 
 	void setSpecularPower(float power)
 	{
@@ -77,11 +75,6 @@ public:
 
 private:
 	std::vector<Mesh*> m_Meshes;
-
-	glm::vec3 m_Position;
-	glm::vec3 m_Scale;
-	glm::vec3 m_Rotation;
-	glm::mat4 m_ModelMatrix;
 
 	GLuint m_DiffuseMapID;
 	glm::vec4 m_AmbientMaterialColour;

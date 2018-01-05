@@ -6,6 +6,7 @@
 int main(int argc, char* args[])
 {
 	initSDL();
+	initGLEW();
 
 	sceneCamera = new Camera((800 / 600),vec3(0.0f, 0.0f, -1.0f), vec3(5.0f, 5.0f, 5.0f));
 
@@ -17,10 +18,11 @@ int main(int argc, char* args[])
 
 	soldier->loadMeshes("basicCharacter.fbx");
 	soldier->loadDiffuseMap("skin_soldier.png");
-	soldier->setPosition(glm::vec3(0.0f, 0.0f, 0.0f));
-	soldier->setScale(glm::vec3(1.0f, 1.0f, 1.0f));
-	
-	soldier->update();
+	soldier->Transform.setPosition(glm::vec3(0.0f, 0.0f, 0.0f));
+	soldier->Transform.setScale(glm::vec3(1.0f, 1.0f, 1.0f));
+
+
+	soldier->Transform.update();
 
 	soldier->loadShaderProgram("vertexShader.glsl", "fragmentShader.glsl");
 
@@ -30,10 +32,10 @@ int main(int argc, char* args[])
 
 	soldier->loadMeshes("basicCharacter.fbx");
 	soldier->loadDiffuseMap("skin_woman.png");
-	soldier->setPosition(glm::vec3(10.0f, 0.0f, 0.0f));
-	soldier->setScale(glm::vec3(1.0f, 1.0f, 1.0f));
+	soldier->Transform.setPosition(glm::vec3(10.0f, 0.0f, 0.0f));
+	soldier->Transform.setScale(glm::vec3(1.0f, 1.0f, 1.0f));
 
-	soldier->update();
+	soldier->Transform.update();
 
 	soldier->loadShaderProgram("lightVertexShader.glsl", "lightFragmentShader.glsl");
 
@@ -43,22 +45,14 @@ int main(int argc, char* args[])
 
 	soldier->loadMeshes("basicCharacter.fbx");
 	soldier->loadDiffuseMap("skin_man.png");
-	soldier->setPosition(glm::vec3(-10.0f, 0.0f, 0.0f));
-	soldier->setScale(glm::vec3(1.0f, 1.0f, 1.0f));
+	soldier->Transform.setPosition(glm::vec3(-10.0f, 0.0f, 0.0f));
+	soldier->Transform.setScale(glm::vec3(1.0f, 1.0f, 1.0f));
 
-	soldier->update();
+	soldier->Transform.update();
 
 	soldier->loadShaderProgram("vertexShader.glsl", "fragmentShader.glsl");
 
 	gameObjectList.push_back(soldier);
-
-	GLuint VertexArrayID;
-	glGenVertexArrays(1, &VertexArrayID);
-	glBindVertexArray(VertexArrayID);
-
-	GLuint vertexBuffer;
-	glGenBuffers(1, &vertexBuffer);
-	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
 
 	mat4 projectionMatrix = perspective(radians(90.0f), float(4.0f / 3.0f), 0.1f, 100.0f);
 
@@ -168,6 +162,8 @@ int main(int argc, char* args[])
 			vec4 diffuseMaterialColour = vec4(0.0f, 0.5f, 0.5f, 1.0f);
 
 			vec3 CameraPosition = sceneCamera->getworldPosition();
+			
+			pCurrentObj->Transform.update();
 
 			vec4 specularLightColour = vec4(1.0f, 1.0f, 1.0f, 1.0f);
 
@@ -175,7 +171,7 @@ int main(int argc, char* args[])
 
 			float specularPower = 25.0f;
 
-			mat4 MVPMatrix = projectionMatrix * viewMatrix * pCurrentObj->getModelMatrix();
+			mat4 MVPMatrix = projectionMatrix * viewMatrix * pCurrentObj->Transform.getModelMatrix();
 
 			pCurrentObj->preRender();
 
@@ -202,7 +198,7 @@ int main(int argc, char* args[])
 
 			GLint modelMatrixLocation = glGetUniformLocation(pCurrentObj->getShaderProgramID(), "modelMatrix");
 
-			mat4 ModelMatrix = pCurrentObj->getModelMatrix();
+			mat4 ModelMatrix = pCurrentObj->Transform.getModelMatrix();
 
 			glUniformMatrix4fv(modelMatrixLocation, 1, GL_FALSE, &ModelMatrix[0][0]);
 
@@ -221,9 +217,6 @@ int main(int argc, char* args[])
 
 		lastTicks = currentTicks;
 	}
-
-	glDeleteVertexArrays(1, &VertexArrayID);
-	glDeleteBuffers(1, &vertexBuffer);
 
 	delete sceneCamera;
 
@@ -285,6 +278,11 @@ int initSDL()
 		SDL_Quit();
 		return 1;
 	}
+	return 0;
+}
+
+int initGLEW()
+{
 	//Initialize GLEW
 	glewExperimental = GL_TRUE;
 	GLenum glewError = glewInit();
@@ -293,8 +291,8 @@ int initSDL()
 		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, (char*)glewGetErrorString(glewError), "GLEW Init Failed", NULL);
 		return 1;
 	}
-
 	return 0;
+
 }
 
 void deleteSDL()

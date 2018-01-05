@@ -5,13 +5,12 @@
 #include <fstream>
 
 #include <SDL.h>
-#include <GL\glew.h>
+#include <gl\glew.h>
 #include <SDL_opengl.h>
 
 #include <glm\glm.hpp>
 #include <glm\gtx\transform.hpp>
 #include <glm\gtc\type_ptr.hpp>
-#include <GL\GLU.h>
 #include <gl\GLU.h>
 
 #include "vertex.h"
@@ -27,6 +26,8 @@ Camera* sceneCamera;
 
 
 int initSDL();
+
+int initGLEW();
 
 void deleteSDL();
 
