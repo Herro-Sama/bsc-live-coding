@@ -1,19 +1,5 @@
 #include "GameObject.h"
 
-GameObject::GameObject()
-{
-	m_Meshes.clear();
-
-	m_DiffuseMapID = 0;
-
-	m_AmbientMaterialColour = glm::vec4(0.4f, 0.4f, 0.4f, 1.0f);
-	m_DiffuseMaterialColour = glm::vec4(0.6f, 0.6f, 0.6f, 1.0f);
-	m_SpecularMaterialColour = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-	m_SpecularPower = 25.0f;
-
-	m_ShaderProgramID = 0;
-}
-
 GameObject::~GameObject()
 {
 	
@@ -34,18 +20,6 @@ void GameObject::loadShaderProgram(const std::string & vertFilename, const std::
 	m_ShaderProgramID = LoadShaders(vertFilename.c_str(), fragFilename.c_str());
 }
 
-void GameObject::update()
-{
-	/*glm::mat4 translationMatrix = glm::translate(m_Position);
-	glm::mat4 scaleMatrix = glm::scale(m_Scale);
-	glm::mat4 rotationMatrix =
-		glm::rotate(m_Rotation.x, glm::vec3(1.0f, 0.0f, 0.0f)) *
-		glm::rotate(m_Rotation.y, glm::vec3(0.0f, 1.0f, 0.0f)) *
-		glm::rotate(m_Rotation.z, glm::vec3(0.0f, 0.0f, 1.0f));
-
-	m_ModelMatrix = translationMatrix*rotationMatrix*scaleMatrix;*/
-
-}
 
 void GameObject::preRender()
 {
@@ -57,6 +31,7 @@ void GameObject::preRender()
 	GLint textureLocation = glGetUniformLocation(m_ShaderProgramID, "baseTexture");
 
 	glUniform1i(textureLocation, 0);
+
 }
 
 void GameObject::render()
@@ -90,6 +65,7 @@ void GameObject::destroy()
 
 GameObject::Transform::Transform()
 {
+
 	m_Position = glm::vec3(0.0f, 0.0f, 0.0f);
 	m_Rotation = glm::vec3(0.0f, 0.0f, 0.0f);
 	m_Scale = glm::vec3(1.0f, 1.0f, 1.0f);
@@ -142,4 +118,66 @@ glm::vec3 GameObject::Transform::getScale()
 glm::mat4 GameObject::Transform::getModelMatrix()
 {
 		return m_ModelMatrix;
+}
+
+GameObject::Lighting::Lighting()
+{
+	m_SpecularPower = 25.0f;
+	
+	m_LightDirection = glm::vec3(0.0f,0.0f,5.0f);
+	
+	m_DiffuseLightColour = glm::vec4(0.0f, 0.3f, 0.3f,1.0f);
+	m_DiffuseMaterialColour = glm::vec4(1.0f, 0.0f, 0.0f,1.0f);
+
+	m_SpecularLightColour = glm::vec4(0.3f, 0.3f, 0.3f, 1.0f);
+	m_SpecularMaterialColour = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
+}
+
+void GameObject::Lighting::sendLightingData()
+{
+	GLuint lightDirectionLocation = glGetUniformLocation(parentRef->getShaderProgramID(), "lightDirection");
+	GLuint diffuseLightColourLocation = glGetUniformLocation(parentRef->getShaderProgramID(), "diffuseLightColour");
+	GLuint diffuseMaterialColourLocation = glGetUniformLocation(parentRef->getShaderProgramID(), "diffuseMaterialColour");
+
+	GLuint specularLightColourLocation = glGetUniformLocation(parentRef->getShaderProgramID(), "specularLightColour");
+	GLuint specularMaterialColourLocation = glGetUniformLocation(parentRef->getShaderProgramID(), "specularMaterialColour");
+	GLuint specularPowerLocation = glGetUniformLocation(parentRef->getShaderProgramID(), "specularPower");
+
+	glUniform3fv(lightDirectionLocation, 1, value_ptr(m_LightDirection));
+	glUniform4fv(diffuseLightColourLocation, 1, value_ptr(m_DiffuseLightColour));
+	glUniform4fv(diffuseMaterialColourLocation, 1, value_ptr(m_DiffuseMaterialColour));
+
+	glUniform4fv(specularLightColourLocation, 1, value_ptr(m_SpecularLightColour));
+	glUniform4fv(specularMaterialColourLocation, 1, value_ptr(m_SpecularMaterialColour));
+	glUniform1f(specularPowerLocation, m_SpecularPower);
+}
+
+void GameObject::Lighting::setLightDirection(glm::vec3 newLightDirection)
+{
+	m_LightDirection = newLightDirection;
+}
+
+void GameObject::Lighting::setDiffuseLightColour(glm::vec4 newDiffuseLightColour)
+{
+	m_DiffuseLightColour = newDiffuseLightColour;
+}
+
+void GameObject::Lighting::setDiffuseMaterialColour(glm::vec4 newDiffuseMaterialColour)
+{
+	m_DiffuseMaterialColour = newDiffuseMaterialColour;
+}
+
+void GameObject::Lighting::setSpecularLightColour(glm::vec4 newSpecularLightColour)
+{
+	m_SpecularLightColour = newSpecularLightColour;
+}
+
+void GameObject::Lighting::setSpecularMaterialColour(glm::vec4 newSpecularMaterialColour)
+{
+	m_SpecularMaterialColour = newSpecularMaterialColour;
+}
+
+void GameObject::Lighting::setAmbientMaterialColour(glm::vec4 newAmbientMaterialColour)
+{
+	m_AmbientMaterialColour = newAmbientMaterialColour;
 }

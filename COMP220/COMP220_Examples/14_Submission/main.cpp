@@ -73,6 +73,54 @@ int main(int argc, char* args[])
 	int lastTicks = SDL_GetTicks();
 	int currentTicks = SDL_GetTicks();
 
+	//Colour Buffer Texture
+	GLuint ColourBufferID = createTexture(800, 600);
+
+	//Create Depth Buffer
+	GLuint depthRenderBufferID;
+	glGenRenderbuffers(1, &depthRenderBufferID);
+	glBindRenderbuffer(GL_RENDERBUFFER, depthRenderBufferID);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, 800, 600);
+
+	//Create Frame Buffer
+	GLuint FrameBufferID;
+	glGenFramebuffers(1, &FrameBufferID);
+	glBindFramebuffer(GL_FRAMEBUFFER, FrameBufferID);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthRenderBufferID);
+	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, ColourBufferID, 0);
+
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+	{
+		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Unable to create frame buffer for post processing", "frame Buffer error", NULL);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	}
+
+	//Create Quad
+	GLfloat screenVertices[] =
+	{
+		-1, -1,
+		 1, -1,
+		-1,  1,
+		 1,  1
+	};
+
+	GLuint screenQuadVBOID;
+	glGenBuffers(1, &screenQuadVBOID);
+	glBindBuffer(GL_ARRAY_BUFFER, screenQuadVBOID);
+	glBufferData(GL_ARRAY_BUFFER, 8 * sizeof(GLfloat), screenVertices, GL_STATIC_DRAW);
+
+	GLuint screenVAO;
+	glGenVertexArrays(1, &screenVAO);
+	glBindVertexArray(screenVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, screenQuadVBOID);
+
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, NULL);
+
+
+	GLuint postProcessingProgramID = LoadShaders("passThroughVertexShader.glsl", "passThroughFragmentShader.glsl");
+	GLint texture0Location = glGetUniformLocation(postProcessingProgramID, "texture0");
+
 
 	//Event loop, we will loop until running is set to false, usually if escape has been pressed or window is closed
 	bool running = true;
@@ -144,6 +192,7 @@ int main(int argc, char* args[])
 			sceneCamera->rotate(float(mouseXPosition), float(mouseYPosition));
 		}
 		//Update Screenspace
+		glBindFramebuffer(GL_FRAMEBUFFER, FrameBufferID);
 		glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
 		glClearDepth(1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -155,46 +204,19 @@ int main(int argc, char* args[])
 		for (GameObject * pCurrentObj : gameObjectList)
 		{
 
-			vec3 lightDirection = vec3(0.0f, 0.0f, 5.0f);
-
-			vec4 diffuseLightColour = vec4(0.0f, 0.5f, 0.0f, 1.0f);
-
-			vec4 diffuseMaterialColour = vec4(0.0f, 0.5f, 0.5f, 1.0f);
-
 			vec3 CameraPosition = sceneCamera->getworldPosition();
 			
 			pCurrentObj->Transform.update();
 
-			vec4 specularLightColour = vec4(1.0f, 1.0f, 1.0f, 1.0f);
-
-			vec4 specularMaterialColour = vec4(1.0f, 1.0f, 1.0f, 1.0f);
-
-			float specularPower = 25.0f;
-
 			mat4 MVPMatrix = projectionMatrix * viewMatrix * pCurrentObj->Transform.getModelMatrix();
 
 			pCurrentObj->preRender();
-
-			GLuint lightDirectionLocation = glGetUniformLocation(pCurrentObj->getShaderProgramID(), "lightDirection");
-			GLuint diffuseLightColourLocation = glGetUniformLocation(pCurrentObj->getShaderProgramID(), "diffuseLightColour");
-			GLuint diffuseMaterialColourLocation = glGetUniformLocation(pCurrentObj->getShaderProgramID(), "diffuseMaterialColour");
+			
+			pCurrentObj->Lighting.sendLightingData();
 
 			GLuint cameraPositionLocation = glGetUniformLocation(pCurrentObj->getShaderProgramID(), "cameraPosition");
 
-			GLuint specularLightColourLocation = glGetUniformLocation(pCurrentObj->getShaderProgramID(), "specularLightColour");
-			GLuint specularMaterialColourLocation = glGetUniformLocation(pCurrentObj->getShaderProgramID(), "specularMaterialColour");
-			GLuint specularPowerLocation = glGetUniformLocation(pCurrentObj->getShaderProgramID(), "specularPower");
-
-
-			glUniform3fv(lightDirectionLocation, 1, value_ptr(lightDirection));
-			glUniform4fv(diffuseLightColourLocation, 1, value_ptr(diffuseLightColour));
-			glUniform4fv(diffuseMaterialColourLocation, 1, value_ptr(diffuseMaterialColour));
-
 			glUniform3fv(cameraPositionLocation, 1, value_ptr(CameraPosition));
-
-			glUniform4fv(diffuseLightColourLocation, 1, value_ptr(diffuseLightColour));
-			glUniform4fv(diffuseMaterialColourLocation, 1, value_ptr(diffuseMaterialColour));
-			glUniform1f(specularPowerLocation, specularPower);
 
 			GLint modelMatrixLocation = glGetUniformLocation(pCurrentObj->getShaderProgramID(), "modelMatrix");
 
@@ -206,12 +228,21 @@ int main(int argc, char* args[])
 
 			glUniformMatrix4fv(MVPMatrixLocation, 1, GL_FALSE, &MVPMatrix[0][0]);
 
-
-
 			pCurrentObj->render();
-
 		}
 
+		glDisable(GL_DEPTH_TEST);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glClearColor(0.0f, 0.3f, 0.3f, 0.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		glUseProgram(postProcessingProgramID);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, ColourBufferID);
+
+		glUniform1i(texture0Location, 0);
+
+		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
 		SDL_GL_SwapWindow(window);
 
@@ -219,6 +250,15 @@ int main(int argc, char* args[])
 	}
 
 	delete sceneCamera;
+
+	glDeleteProgram(postProcessingProgramID);
+	glDeleteVertexArrays(1, &screenVAO);
+	glDeleteBuffers(1, &screenQuadVBOID);
+	glDeleteFramebuffers(1, &FrameBufferID);
+	glDeleteRenderbuffers(1, &depthRenderBufferID);
+	glDeleteTextures(1, &ColourBufferID);
+
+
 
 	auto iter = gameObjectList.begin();
 	while (iter != gameObjectList.end())
@@ -234,6 +274,7 @@ int main(int argc, char* args[])
 	}
 
 	deleteSDL();
+
 
 	return 0;
 }
