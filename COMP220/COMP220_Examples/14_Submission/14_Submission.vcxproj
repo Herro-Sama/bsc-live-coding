@@ -158,6 +158,7 @@ copy $(ProjectDir)\*.glsl $(OutDir)\*.glsl
     <None Include="lightVertexShader.glsl" />
     <None Include="passThroughFragmentShader.glsl" />
     <None Include="passThroughVertexShader.glsl" />
+    <None Include="postBlackAndWhite.glsl" />
     <None Include="vertexShader.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

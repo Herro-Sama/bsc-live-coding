@@ -69,7 +69,6 @@ int main(int argc, char* args[])
 	float speed = 3.0f; // 3 units / second
 	float mouseSpeed = 0.005f;
 
-	glEnable(GL_DEPTH_TEST);
 	int lastTicks = SDL_GetTicks();
 	int currentTicks = SDL_GetTicks();
 
@@ -92,7 +91,6 @@ int main(int argc, char* args[])
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 	{
 		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Unable to create frame buffer for post processing", "frame Buffer error", NULL);
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 
 	//Create Quad
@@ -118,7 +116,7 @@ int main(int argc, char* args[])
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, NULL);
 
 
-	GLuint postProcessingProgramID = LoadShaders("passThroughVertexShader.glsl", "passThroughFragmentShader.glsl");
+	GLuint postProcessingProgramID = LoadShaders("passThroughVertexShader.glsl", "postColourEnhancement.glsl");
 	GLint texture0Location = glGetUniformLocation(postProcessingProgramID, "texture0");
 
 
@@ -192,6 +190,7 @@ int main(int argc, char* args[])
 			sceneCamera->rotate(float(mouseXPosition), float(mouseYPosition));
 		}
 		//Update Screenspace
+		glEnable(GL_DEPTH_TEST);
 		glBindFramebuffer(GL_FRAMEBUFFER, FrameBufferID);
 		glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
 		glClearDepth(1.0f);
@@ -237,11 +236,14 @@ int main(int argc, char* args[])
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		glUseProgram(postProcessingProgramID);
+
+
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, ColourBufferID);
 
 		glUniform1i(texture0Location, 0);
 
+		glBindVertexArray(screenVAO);
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
 		SDL_GL_SwapWindow(window);

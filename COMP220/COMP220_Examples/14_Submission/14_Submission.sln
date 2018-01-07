@@ -5,6 +5,11 @@ VisualStudioVersion = 15.0.26730.16
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "14_Submission", "14_Submission.vcxproj", "{DA3B4036-11FF-415E-B401-EB64CD395389}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{635DD492-1782-45AA-BC20-34D24D435D3A}"
+	ProjectSection(SolutionItems) = preProject
+		postColourEnhancement.glsl = postColourEnhancement.glsl
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
