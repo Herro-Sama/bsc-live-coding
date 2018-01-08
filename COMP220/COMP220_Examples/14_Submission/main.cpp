@@ -5,7 +5,7 @@
 int main(int argc, char* args[])
 {
 	initSDL();
-	initGLEW();
+	initOpenGL();
 
 	// Create camera 
 	sceneCamera = new Camera((800 / 600),vec3(-4.0f, 0.0f, -16.0f), vec3(5.0f, 5.0f, 5.0f));
@@ -426,6 +426,11 @@ int initSDL()
 		return 1;
 	}
 
+	return 0;
+}
+
+int initOpenGL()
+{
 	//lets ask for a 3.2 core profile version of OpenGL
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
@@ -440,11 +445,7 @@ int initSDL()
 		SDL_Quit();
 		return 1;
 	}
-	return 0;
-}
 
-int initGLEW()
-{
 	//Initialize GLEW
 	glewExperimental = GL_TRUE;
 	GLenum glewError = glewInit();

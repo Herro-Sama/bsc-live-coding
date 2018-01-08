@@ -32,7 +32,7 @@ bool physicsActive = false;
 
 int initSDL();
 
-int initGLEW();
+int initOpenGL();
 
 void deleteSDL();
 
