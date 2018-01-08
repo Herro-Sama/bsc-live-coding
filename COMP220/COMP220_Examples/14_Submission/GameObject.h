@@ -15,6 +15,7 @@
 class GameObject
 {
 public:
+	// Object Constructor paired with Nested Class Assignment
 	GameObject() : Lighting(this), Physics(this)
 	{
 		m_Meshes.clear();
@@ -22,6 +23,9 @@ public:
 	}
 	~GameObject();
 
+	/* 
+	Class for holding all the Transform information and allowing for it to be changed
+	*/
 	class Transform
 	{
 	public:
@@ -52,6 +56,11 @@ public:
 		glm::mat4 m_ModelMatrix;
 
 	}Transform;	
+
+	/*
+	Class for holding all the Lighting information and allowing for it to be changed 
+	NOT WORKING
+	*/
 
 	class Lighting
 	{
@@ -88,6 +97,9 @@ public:
 
 	}Lighting;
 
+	/*
+	Class for holding all the Physics information and allowing for it to be changed as needed
+	*/
 	class Physics
 	{
 	public:

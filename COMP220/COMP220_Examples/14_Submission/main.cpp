@@ -1,5 +1,4 @@
-//main.cpp - defines the entry point of the application
-//copy $(ProjectDir)\*.glsl $(OutDir)\*.glsl
+//Based on the tutorial code from Brian's lessons. 
 
 #include "main.h"
 
@@ -8,12 +7,16 @@ int main(int argc, char* args[])
 	initSDL();
 	initGLEW();
 
+	// Create camera 
 	sceneCamera = new Camera((800 / 600),vec3(-4.0f, 0.0f, -16.0f), vec3(5.0f, 5.0f, 5.0f));
 
+	// Populate information for the viewMatrix
 	mat4 viewMatrix = sceneCamera->cameraMatrix;
-
+	
+	// Make a vector to hold the game objects
 	std::vector<GameObject *> gameObjectList;
 
+	// create a gameobject and assign a mesh texture and set it's world positions and Physics properties
 	GameObject * soldier = new GameObject();
 
 	soldier->loadMeshes("basicCharacter.fbx");
@@ -77,8 +80,10 @@ int main(int argc, char* args[])
 
 	gameObjectList.push_back(soldier);
 
+	// Create the projectionMatrix
 	mat4 projectionMatrix = perspective(radians(90.0f), float(4.0f / 3.0f), 0.1f, 100.0f);
 
+	//Create mousePosition data holders
 	int mouseXPosition = 0.0f;
 	int mouseYPosition = 0.0f;
 	
@@ -92,6 +97,7 @@ int main(int argc, char* args[])
 	float speed = 3.0f; // 3 units / second
 	float mouseSpeed = 0.005f;
 
+	// Get the information for working out delta time
 	int lastTicks = SDL_GetTicks();
 	int currentTicks = SDL_GetTicks();
 
@@ -138,9 +144,12 @@ int main(int argc, char* args[])
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, NULL);
 
-
+	// Declare the postProcessing shaders to load and the texture that's being used
 	GLuint postProcessingProgramID = LoadShaders("passThroughVertexShader.glsl", "postColourEnhancement.glsl");
-	GLint texture0Location = glGetUniformLocation(postProcessingProgramID, "texture0");
+	GLint texture1Location = glGetUniformLocation(postProcessingProgramID, "texture1");
+
+
+	//Set up the physics for the scene and assign gravity
 
 	btDefaultCollisionConfiguration* collisionConfiguration = new btDefaultCollisionConfiguration();
 
@@ -154,6 +163,7 @@ int main(int argc, char* args[])
 
 	dynamicWorld->setGravity(btVector3(0, -10, 0));
 
+	// Create the floor physics body
 	btCollisionShape* groundShape = new btBoxShape(btVector3(btScalar(50.), btScalar(2.), btScalar(50.)));
 
 	btTransform groundTransform;
@@ -169,6 +179,7 @@ int main(int argc, char* args[])
 
 	dynamicWorld->addRigidBody(ground);
 
+	// Add every gameObjects rigidBody to dynamicWorld
 	for (GameObject * pCurrentObj : gameObjectList)
 	{
 		dynamicWorld->addRigidBody(pCurrentObj->Physics.getRigidBody());
@@ -201,39 +212,39 @@ int main(int argc, char* args[])
 				case SDLK_ESCAPE:
 					running = false;
 					break;
-
+					// w key
 				case SDLK_w:
 					sceneCamera->move(0.5f);
 					break;
-
+					// s Key
 				case SDLK_s:
 					sceneCamera->move(-0.5f);
 					break;
-
+					// a Key
 				case SDLK_a:
 					sceneCamera->strafe(0.5f);
 					break;
-
+					// d Key
 				case SDLK_d:
 					sceneCamera->strafe(-0.5f);
 					break;
-
+					// Left Control Key
 				case SDLK_LCTRL:
 					sceneCamera->lift(-0.5f);
 					break;
-
+					// Space Key
 				case SDLK_SPACE:
 					sceneCamera->lift(0.5f);
 					break;
-
+					// 1 Key
 				case SDLK_1:
 					postProcessingOn = false;
 					break;
-
+					// 2 Key
 				case SDLK_2:
 					postProcessingOn = true;
 					break;
-
+					// 3 Key
 				case SDLK_3:
 					physicsActive = true;
 					break;
@@ -241,18 +252,21 @@ int main(int argc, char* args[])
 			}
 		}
 
+		// Set the mouse position values
 		SDL_GetRelativeMouseState(&mouseXPosition, &mouseYPosition);
 
 
-
+		// Work out the deltaTime
 		currentTicks = SDL_GetTicks();
 		float deltaTime = (float)(currentTicks - lastTicks) / 1000.0f;
 		
+		//Check if physics are active and if they are then simulate physics
 		if (physicsActive == true) 
 		{
 			dynamicWorld->stepSimulation(1.f / 60.0f, 10);
 		}
 
+		// Pass the values of the mouseMovement to the camera to update it's position
 		if (mouseXPosition != 0 && mouseYPosition != 0)
 		{
 			horizontalAngle += mouseSpeed * deltaTime * float(mouseXPosition);
@@ -268,9 +282,10 @@ int main(int argc, char* args[])
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
-
+		//Update the viewMatrix
 		viewMatrix = sceneCamera->cameraMatrix;
 
+		// Pass all information needed in the shaders for each of the gameobjects and generate their MVPMatrix
 		for (GameObject * pCurrentObj : gameObjectList)
 		{
 
@@ -305,11 +320,13 @@ int main(int argc, char* args[])
 			pCurrentObj->render();
 		}
 
+		// Clear the screen for postprocessing
 		glDisable(GL_DEPTH_TEST);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glClearColor(0.0f, 0.3f, 0.3f, 0.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+		// Enable postprocessing
 		if (postProcessingOn == true)
 		{
 			glUseProgram(postProcessingProgramID);
@@ -318,17 +335,18 @@ int main(int argc, char* args[])
 			glActiveTexture(GL_TEXTURE0);
 			glBindTexture(GL_TEXTURE_2D, ColourBufferID);
 
-			glUniform1i(texture0Location, 0);
+			glUniform1i(texture1Location, 0);
 
 			glBindVertexArray(screenVAO);
 			glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 		}
+		//Update the window
 		SDL_GL_SwapWindow(window);
 
 		lastTicks = currentTicks;
 	}
 
-	//code snippet from Bullet Physics
+	//code snippet from Bullet Physics for deleting motion states and objects from dynamicWorld
 	for (int iterator = dynamicWorld->getNumCollisionObjects() - 1; iterator >= 0; iterator--)
 	{
 		btCollisionObject* obj = dynamicWorld->getCollisionObjectArray()[iterator];
@@ -340,6 +358,8 @@ int main(int argc, char* args[])
 		dynamicWorld->removeCollisionObject(obj);
 		delete obj;
 	}
+
+	delete groundShape;
 
 	delete sceneCamera;
 
@@ -366,7 +386,7 @@ int main(int argc, char* args[])
 	{
 		if ((*iter))
 		{
-
+			(*iter)->Physics.disablePhysics();
 			(*iter)->destroy();
 			delete (*iter);
 			(*iter) = nullptr;

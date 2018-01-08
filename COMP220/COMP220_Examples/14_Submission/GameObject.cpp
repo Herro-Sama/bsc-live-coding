@@ -194,7 +194,7 @@ void GameObject::Physics::setInertia(float x, float y, float z)
 
 void GameObject::Physics::setCollisionBoxSize(float x, float y, float z)
 {
-	gameObjectCollisionShape = new btBoxShape(btVector3(x, y, x));
+	gameObjectCollisionShape = new btBoxShape(btVector3(x, y, z));
 }
 
 void GameObject::Physics::enablePhysics(float originX, float originY, float originZ)
@@ -217,15 +217,11 @@ void GameObject::Physics::updatePhysics()
 
 	parentRef->Transform.setPosition(glm::vec3(rigidbodyOrigin.getX(), rigidbodyOrigin.getY(), rigidbodyOrigin.getZ()));
 
-
 }
 
 void GameObject::Physics::disablePhysics()
 {
 	delete gameObjectCollisionShape;
-
-	delete gameObjectRigidBody->getMotionState();
-	delete gameObjectRigidBody;
 }
 
 btRigidBody * GameObject::Physics::getRigidBody()

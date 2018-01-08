@@ -8,6 +8,8 @@
 
 #include <iostream>
 
+// Based on Tristans Camera Code
+
 class Camera
 {
 public:

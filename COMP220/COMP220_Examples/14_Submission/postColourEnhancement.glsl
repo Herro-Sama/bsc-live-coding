@@ -6,7 +6,7 @@ in vec2 textureCoordsOut;
 
 out vec4 colour;
 
-uniform sampler2D texture0;
+uniform sampler2D texture1;
 
 float getEnhancedColour(float colour)
 {
@@ -15,14 +15,14 @@ float getEnhancedColour(float colour)
 
 void main()
 {
-	vec4 top = texture(texture0, vec2(textureCoordsOut.x, textureCoordsOut.y + 1.0f /400.0f));
-	vec4 bottom = texture(texture0, vec2(textureCoordsOut.x, textureCoordsOut.y - 1.0f /400.0f));
-	vec4 left = texture(texture0, vec2(textureCoordsOut.x + 1.0f /400.0f, textureCoordsOut.y));
-	vec4 right = texture(texture0, vec2(textureCoordsOut.x - 1.0f /400.0f, textureCoordsOut.y));
-	vec4 topleft = texture(texture0, vec2(textureCoordsOut.x + 1.0f /400.0f, textureCoordsOut.y + 1.0f /400.0f));
-	vec4 topright = texture(texture0, vec2(textureCoordsOut.x + 1.0f /400.0f, textureCoordsOut.y + 1.0f /400.0f));
-	vec4 bottomleft = texture(texture0, vec2(textureCoordsOut.x - 1.0f /400.0f, textureCoordsOut.y - 1.0f /400.0f));
-	vec4 bottomright = texture(texture0, vec2(textureCoordsOut.x - 1.0f /400.0f, textureCoordsOut.y - 1.0f /400.0f));
+	vec4 top = texture(texture1, vec2(textureCoordsOut.x, textureCoordsOut.y + 1.0f /400.0f));
+	vec4 bottom = texture(texture1, vec2(textureCoordsOut.x, textureCoordsOut.y - 1.0f /400.0f));
+	vec4 left = texture(texture1, vec2(textureCoordsOut.x + 1.0f /400.0f, textureCoordsOut.y));
+	vec4 right = texture(texture1, vec2(textureCoordsOut.x - 1.0f /400.0f, textureCoordsOut.y));
+	vec4 topleft = texture(texture1, vec2(textureCoordsOut.x + 1.0f /400.0f, textureCoordsOut.y + 1.0f /400.0f));
+	vec4 topright = texture(texture1, vec2(textureCoordsOut.x + 1.0f /400.0f, textureCoordsOut.y + 1.0f /400.0f));
+	vec4 bottomleft = texture(texture1, vec2(textureCoordsOut.x - 1.0f /400.0f, textureCoordsOut.y - 1.0f /400.0f));
+	vec4 bottomright = texture(texture1, vec2(textureCoordsOut.x - 1.0f /400.0f, textureCoordsOut.y - 1.0f /400.0f));
 
 
 
