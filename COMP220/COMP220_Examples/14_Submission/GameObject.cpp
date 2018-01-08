@@ -181,3 +181,54 @@ void GameObject::Lighting::setAmbientMaterialColour(glm::vec4 newAmbientMaterial
 {
 	m_AmbientMaterialColour = newAmbientMaterialColour;
 }
+
+void GameObject::Physics::setMass(float mass)
+{
+	gameObjectMass = mass;
+}
+
+void GameObject::Physics::setInertia(float x, float y, float z)
+{
+	gameObjectInertia = btVector3(x, y, z);
+}
+
+void GameObject::Physics::setCollisionBoxSize(float x, float y, float z)
+{
+	gameObjectCollisionShape = new btBoxShape(btVector3(x, y, x));
+}
+
+void GameObject::Physics::enablePhysics(float originX, float originY, float originZ)
+{
+	gameObjectTransform.setIdentity();
+	gameObjectTransform.setOrigin(btVector3(originX,originY,originZ));
+
+	gameObjectCollisionShape->calculateLocalInertia(gameObjectMass, gameObjectInertia);
+
+	gameObjectMotionState = new btDefaultMotionState(gameObjectTransform);
+	btRigidBody::btRigidBodyConstructionInfo gameObjectRBInfo(gameObjectMass, gameObjectMotionState, gameObjectCollisionShape, gameObjectInertia);
+	gameObjectRigidBody = new btRigidBody(gameObjectRBInfo);
+}
+
+void GameObject::Physics::updatePhysics()
+{
+	gameObjectTransform = gameObjectRigidBody->getWorldTransform();
+	rigidbodyOrigin = gameObjectTransform.getOrigin();
+	gameObjectOrientation = gameObjectTransform.getRotation();
+
+	parentRef->Transform.setPosition(glm::vec3(rigidbodyOrigin.getX(), rigidbodyOrigin.getY(), rigidbodyOrigin.getZ()));
+
+
+}
+
+void GameObject::Physics::disablePhysics()
+{
+	delete gameObjectCollisionShape;
+
+	delete gameObjectRigidBody->getMotionState();
+	delete gameObjectRigidBody;
+}
+
+btRigidBody * GameObject::Physics::getRigidBody()
+{
+	return gameObjectRigidBody;
+}

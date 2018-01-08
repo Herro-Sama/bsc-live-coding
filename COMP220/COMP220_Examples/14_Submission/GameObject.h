@@ -6,6 +6,8 @@
 #include <glm\gtx\transform.hpp>
 #include <glm\gtc\type_ptr.hpp>
 
+#include <btBulletDynamicsCommon.h>
+
 #include "model.h"
 #include "texture.h"
 #include "shader.h"
@@ -13,7 +15,7 @@
 class GameObject
 {
 public:
-	GameObject() : Lighting(this) 
+	GameObject() : Lighting(this), Physics(this)
 	{
 		m_Meshes.clear();
 		m_ShaderProgramID = 0;
@@ -85,6 +87,44 @@ public:
 		glm::vec4 m_AmbientMaterialColour;
 
 	}Lighting;
+
+	class Physics
+	{
+	public:
+		Physics(GameObject * ref) : parentRef(ref) {}
+		Physics();
+
+		void setMass(float mass);
+		void setInertia(float x, float y, float z);
+		void setCollisionBoxSize(float x, float y, float z);
+
+		void enablePhysics(float originX, float originY, float originZ);
+
+		void updatePhysics();
+
+		void disablePhysics();
+
+		btRigidBody* getRigidBody();
+
+	private:
+		GameObject * parentRef;
+		btCollisionShape* gameObjectCollisionShape;
+		btTransform gameObjectTransform;
+		btScalar gameObjectMass;
+		btVector3 gameObjectInertia;
+
+		btVector3 rigidbodyOrigin;
+
+		btQuaternion gameObjectOrientation;
+
+		btDefaultMotionState* gameObjectMotionState;
+		btRigidBody* gameObjectRigidBody;
+
+	}Physics;
+
+
+
+
 
 	GLuint getShaderProgramID()
 	{

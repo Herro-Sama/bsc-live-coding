@@ -13,6 +13,8 @@
 #include <glm\gtc\type_ptr.hpp>
 #include <gl\GLU.h>
 
+#include <btBulletDynamicsCommon.h>
+
 #include "vertex.h"
 #include "shader.h"
 
@@ -24,6 +26,9 @@ SDL_GLContext GL_Context;
 
 Camera* sceneCamera;
 
+bool postProcessingOn = true;
+
+bool physicsActive = false;
 
 int initSDL();
 

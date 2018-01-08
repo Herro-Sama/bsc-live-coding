@@ -8,7 +8,7 @@ int main(int argc, char* args[])
 	initSDL();
 	initGLEW();
 
-	sceneCamera = new Camera((800 / 600),vec3(0.0f, 0.0f, -1.0f), vec3(5.0f, 5.0f, 5.0f));
+	sceneCamera = new Camera((800 / 600),vec3(-4.0f, 0.0f, -16.0f), vec3(5.0f, 5.0f, 5.0f));
 
 	mat4 viewMatrix = sceneCamera->cameraMatrix;
 
@@ -21,8 +21,15 @@ int main(int argc, char* args[])
 	soldier->Transform.setPosition(glm::vec3(0.0f, 0.0f, 0.0f));
 	soldier->Transform.setScale(glm::vec3(1.0f, 1.0f, 1.0f));
 
-
 	soldier->Transform.update();
+
+	soldier->Physics.setCollisionBoxSize(0.5f, 1.0f, 0.5f);
+
+	soldier->Physics.setMass(0.0f);
+
+	soldier->Physics.setInertia(0.0f, 0.0f, 0.0f);
+
+	soldier->Physics.enablePhysics(0.0f, 0.0f, 0.0f);
 
 	soldier->loadShaderProgram("vertexShader.glsl", "fragmentShader.glsl");
 
@@ -37,6 +44,14 @@ int main(int argc, char* args[])
 
 	soldier->Transform.update();
 
+	soldier->Physics.setCollisionBoxSize(0.5f, 1.0f, 0.5f);
+
+	soldier->Physics.setMass(0.0f);
+
+	soldier->Physics.setInertia(0.0f, 0.0f, 0.0f);
+
+	soldier->Physics.enablePhysics(10.0f, 0.0f, 0.0f);
+
 	soldier->loadShaderProgram("lightVertexShader.glsl", "lightFragmentShader.glsl");
 
 	gameObjectList.push_back(soldier);
@@ -49,6 +64,14 @@ int main(int argc, char* args[])
 	soldier->Transform.setScale(glm::vec3(1.0f, 1.0f, 1.0f));
 
 	soldier->Transform.update();
+
+	soldier->Physics.setCollisionBoxSize(0.5f, 1.0f, 0.5f);
+
+	soldier->Physics.setMass(1.0f);
+
+	soldier->Physics.setInertia(0.0f, 0.0f, 0.0f);
+
+	soldier->Physics.enablePhysics(-10.0f, 0.0f, 0.0f);
 
 	soldier->loadShaderProgram("vertexShader.glsl", "fragmentShader.glsl");
 
@@ -119,6 +142,37 @@ int main(int argc, char* args[])
 	GLuint postProcessingProgramID = LoadShaders("passThroughVertexShader.glsl", "postColourEnhancement.glsl");
 	GLint texture0Location = glGetUniformLocation(postProcessingProgramID, "texture0");
 
+	btDefaultCollisionConfiguration* collisionConfiguration = new btDefaultCollisionConfiguration();
+
+	btCollisionDispatcher* dispatcher = new btCollisionDispatcher(collisionConfiguration);
+
+	btBroadphaseInterface* overlappingPairCache = new btDbvtBroadphase();
+
+	btSequentialImpulseConstraintSolver * solver = new btSequentialImpulseConstraintSolver;
+
+	btDiscreteDynamicsWorld* dynamicWorld = new btDiscreteDynamicsWorld(dispatcher, overlappingPairCache, solver, collisionConfiguration);
+
+	dynamicWorld->setGravity(btVector3(0, -10, 0));
+
+	btCollisionShape* groundShape = new btBoxShape(btVector3(btScalar(50.), btScalar(2.), btScalar(50.)));
+
+	btTransform groundTransform;
+	groundTransform.setIdentity();
+	groundTransform.setOrigin(btVector3(0, -10, 0));
+
+	btScalar mass(0.);
+	btVector3 localInertia(0, 0, 0);
+
+	btDefaultMotionState* myMotionState = new btDefaultMotionState(groundTransform);
+	btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, groundShape, localInertia);
+	btRigidBody* ground = new btRigidBody(rbInfo);
+
+	dynamicWorld->addRigidBody(ground);
+
+	for (GameObject * pCurrentObj : gameObjectList)
+	{
+		dynamicWorld->addRigidBody(pCurrentObj->Physics.getRigidBody());
+	}
 
 	//Event loop, we will loop until running is set to false, usually if escape has been pressed or window is closed
 	bool running = true;
@@ -171,6 +225,18 @@ int main(int argc, char* args[])
 				case SDLK_SPACE:
 					sceneCamera->lift(0.5f);
 					break;
+
+				case SDLK_1:
+					postProcessingOn = false;
+					break;
+
+				case SDLK_2:
+					postProcessingOn = true;
+					break;
+
+				case SDLK_3:
+					physicsActive = true;
+					break;
 				}
 			}
 		}
@@ -181,6 +247,11 @@ int main(int argc, char* args[])
 
 		currentTicks = SDL_GetTicks();
 		float deltaTime = (float)(currentTicks - lastTicks) / 1000.0f;
+		
+		if (physicsActive == true) 
+		{
+			dynamicWorld->stepSimulation(1.f / 60.0f, 10);
+		}
 
 		if (mouseXPosition != 0 && mouseYPosition != 0)
 		{
@@ -204,7 +275,11 @@ int main(int argc, char* args[])
 		{
 
 			vec3 CameraPosition = sceneCamera->getworldPosition();
-			
+
+			if (physicsActive == true)
+			{
+				pCurrentObj->Physics.updatePhysics();
+			}
 			pCurrentObj->Transform.update();
 
 			mat4 MVPMatrix = projectionMatrix * viewMatrix * pCurrentObj->Transform.getModelMatrix();
@@ -235,23 +310,49 @@ int main(int argc, char* args[])
 		glClearColor(0.0f, 0.3f, 0.3f, 0.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		glUseProgram(postProcessingProgramID);
+		if (postProcessingOn == true)
+		{
+			glUseProgram(postProcessingProgramID);
 
 
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, ColourBufferID);
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, ColourBufferID);
 
-		glUniform1i(texture0Location, 0);
+			glUniform1i(texture0Location, 0);
 
-		glBindVertexArray(screenVAO);
-		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-
+			glBindVertexArray(screenVAO);
+			glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+		}
 		SDL_GL_SwapWindow(window);
 
 		lastTicks = currentTicks;
 	}
 
+	//code snippet from Bullet Physics
+	for (int iterator = dynamicWorld->getNumCollisionObjects() - 1; iterator >= 0; iterator--)
+	{
+		btCollisionObject* obj = dynamicWorld->getCollisionObjectArray()[iterator];
+		btRigidBody* body = btRigidBody::upcast(obj);
+		if (body && body->getMotionState())
+		{
+			delete body->getMotionState();
+		}
+		dynamicWorld->removeCollisionObject(obj);
+		delete obj;
+	}
+
 	delete sceneCamera;
+
+	delete dynamicWorld;
+
+	delete solver;
+
+	delete overlappingPairCache;
+
+	delete dispatcher;
+
+	delete collisionConfiguration;
+
 
 	glDeleteProgram(postProcessingProgramID);
 	glDeleteVertexArrays(1, &screenVAO);
@@ -259,8 +360,6 @@ int main(int argc, char* args[])
 	glDeleteFramebuffers(1, &FrameBufferID);
 	glDeleteRenderbuffers(1, &depthRenderBufferID);
 	glDeleteTextures(1, &ColourBufferID);
-
-
 
 	auto iter = gameObjectList.begin();
 	while (iter != gameObjectList.end())
